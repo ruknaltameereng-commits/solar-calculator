@@ -14,7 +14,6 @@ st.set_page_config(
 # 2. البيانات والمعايير الفنية والماركات
 # ==========================================
 
-# أ. الألواح الشمسية مع الأسعار الجديدة
 PANEL_OPTIONS = [
     {"brand": "Jinko Solar 725W (Voc 49.12V)", "power_w": 725, "price": 175, "max_string_size": 9},
     {"brand": "Longi Solar 640W (Voc 53.70V)", "power_w": 640, "price": 165, "max_string_size": 8},
@@ -24,7 +23,6 @@ PANEL_OPTIONS = [
 DC_ACCESSORIES_PRICE_PER_STRING = 30
 EARTHING_SYSTEM_PRICE = 160
 
-# ب. قائمة العواكس المتاحة
 INVERTER_BRANDS = [
     {"brand": "Growatt Single Phase (IP21)", "power_kw": 6.0, "price": 400, "phase": "single"},
     {"brand": "Solis / Deye Single Phase (IP65)", "power_kw": 6.0, "price": 1350, "phase": "single"},
@@ -35,7 +33,6 @@ INVERTER_BRANDS = [
     {"brand": "Deye High Voltage 3-Phase (HV-3PH)", "power_kw": 50.0, "price": 5200, "phase": "three"}
 ]
 
-# ج. قائمة البطاريات المتوفرة
 BATTERIES = [
     {"name": "AOKLY جدارية / أرضية", "capacity_kwh": 10.24, "price": 1350},
     {"name": "BICODI", "capacity_kwh": 12.0, "price": 1450},
@@ -95,7 +92,6 @@ def calculate_panels(day_current, required_battery_kwh, selected_panel):
 st.title("☀️ حاسبة وتصميم المنظومات الشمسية")
 st.caption("إعداد المهندس مراد - حساب المكونات والماركات المتاحة")
 
-# إعدادات العرض في القائمة الجانبية (Sidebar)
 st.sidebar.header("⚙️ إعدادات العرض")
 show_math_steps = st.sidebar.checkbox("إظهار الخطوات والحسابات الرياضية", value=False)
 
@@ -118,8 +114,8 @@ is_hv_3ph = st.checkbox("تطبيق نظام HV-3PH (ثلاثي الأطوار /
 
 st.markdown("---")
 
-# 2. تحديد قدرات وماركات الأجهزة
-st.subheader("⚙️ 2. اختيار الأجهزة والماركات المتوفرة")
+# 2. الحسابات التلقائية والتصفية الذكية للماركات
+st.subheader("⚙️ 2. اختيار ماركات الأجهزة المتوفرة")
 
 # أ. اختيار ماركة الألواح
 panel_names = [f"{p['brand']} - بسعر (${p['price']})" for p in PANEL_OPTIONS]
@@ -128,96 +124,73 @@ chosen_panel = PANEL_OPTIONS[panel_names.index(selected_p_str)]
 
 st.markdown("---")
 
-# ب. اختيار قدرة العاكس ثم ماركته
-st.markdown("##### 🔌 العاكس الهجين (Inverter):")
+# ب. حساب قدرة العاكس تلقائياً وعرض الماركات المطابقة فقط
+load_kw = (day_amp * 230) / 1000.0
+recommended_kw = load_kw * 1.2
 target_phase = "three" if is_hv_3ph else "single"
 
-# فلترة العواكس المتاحة حسب نظام الفازات (Single / 3-Phase)
+# البحث عن أصغر قدرة عاكس تغطي الأحمال
 phase_inverters = [inv for inv in INVERTER_BRANDS if inv["phase"] == target_phase]
 available_powers = sorted(list(set([inv["power_kw"] for inv in phase_inverters])))
 
-col_inv_p, col_inv_b = st.columns(2)
+selected_power_kw = None
+for pkw in available_powers:
+    if pkw >= recommended_kw:
+        selected_power_kw = pkw
+        break
 
-with col_inv_p:
-    # حساب القدرة المقترحة بناءً على الأحمال
-    load_kw = (day_amp * 230) / 1000.0
-    recommended_kw = load_kw * 1.2
-    
-    # تحديد الفهرس المبدئي الأنسب للقدرة المقترحة
-    default_p_index = 0
-    for idx, pkw in enumerate(available_powers):
-        if pkw >= recommended_kw:
-            default_p_index = idx
-            break
+if not selected_power_kw:
+    selected_power_kw = available_powers[-1]
 
-    selected_power_kw = st.selectbox(
-        "1. اختر قدرة العاكس المطلوبة (kW):", 
-        options=available_powers, 
-        index=default_p_index,
-        format_func=lambda x: f"{x} kW"
-    )
+# تصفية الماركات المتوفرة لهذه القدرة الحسابية فقط
+brands_for_power = [inv for inv in phase_inverters if inv["power_kw"] == selected_power_kw]
+brand_options = [f"{inv['brand']} - بسعر (${inv['price']})" for inv in brands_for_power]
 
-with col_inv_b:
-    # فلترة الماركات المتاحة للقدرة المختارة فقط
-    brands_for_power = [inv for inv in phase_inverters if inv["power_kw"] == selected_power_kw]
-    brand_options = [f"{inv['brand']} - بسعر (${inv['price']})" for inv in brands_for_power]
-    
-    selected_brand_str = st.selectbox("2. اختر الماركة المتوفرة لهذه القدرة:", options=brand_options)
-    chosen_inverter = brands_for_power[brand_options.index(selected_brand_str)]
+selected_brand_str = st.selectbox(
+    f"🔌 اختر ماركة العاكس الهجين المتوفرة بقدرة ({selected_power_kw} kW):", 
+    options=brand_options
+)
+chosen_inverter = brands_for_power[brand_options.index(selected_brand_str)]
 
 st.markdown("---")
 
-# ج. اختيار سعة البطارية ثم ماركتها
-st.markdown("##### 🔋 بنك البطاريات (Batteries):")
+# ج. حساب سعة البطارية تلقائياً وعرض الماركات والتجميعات المطابقة فقط
 req_kwh = night_amp * 0.285 * night_hours
 
-# تجهيز خيارات تجميعات البطاريات المتاحة
 all_bat_combos = []
 for bat in BATTERIES:
     for qty in [1, 2, 3]:
         total_cap = bat["capacity_kwh"] * qty
-        all_bat_combos.append({
-            "brand": bat["name"],
-            "unit_cap": bat["capacity_kwh"],
-            "total_cap": round(total_cap, 2),
-            "qty": qty,
-            "unit_price": bat["price"],
-            "total_price": bat["price"] * qty
-        })
+        if total_cap >= req_kwh:
+            all_bat_combos.append({
+                "brand": bat["name"],
+                "unit_cap": bat["capacity_kwh"],
+                "total_cap": round(total_cap, 2),
+                "qty": qty,
+                "unit_price": bat["price"],
+                "total_price": bat["price"] * qty,
+                "diff": total_cap - req_kwh
+            })
 
-# استخراج السعات الكلية المتاحة
-available_bat_caps = sorted(list(set([b["total_cap"] for b in all_bat_combos if b["total_cap"] >= req_kwh * 0.8])))
+# اختيار السعة الأقرب للحاجة الحسابية
+all_bat_combos.sort(key=lambda x: x["diff"])
+target_bat_cap = all_bat_combos[0]["total_cap"] if all_bat_combos else 0
 
-col_bat_c, col_bat_b = st.columns(2)
+matching_bat_brands = [b for b in all_bat_combos if b["total_cap"] == target_bat_cap]
+bat_brand_options = [
+    f"{b['qty']}x {b['brand']} ({b['unit_cap']} kWh) - إجمالي السعة ({b['total_cap']} kWh) - بسعر (${b['total_price']})" 
+    for b in matching_bat_brands
+]
 
-with col_bat_c:
-    # تحديد أفضل سعة مقترحة
-    default_c_index = 0
-    for idx, cap in enumerate(available_bat_caps):
-        if cap >= req_kwh:
-            default_c_index = idx
-            break
-
-    selected_bat_cap = st.selectbox(
-        f"1. اختر سعة بنك البطاريات الكلية (المطلوب تقريباً {req_kwh:.2f} kWh):",
-        options=available_bat_caps,
-        index=default_c_index,
-        format_func=lambda x: f"{x} kWh"
-    )
-
-with col_bat_b:
-    # فلترة الماركات والتجميعات المتاحة للسعة المختارة فقط
-    matching_bat_brands = [b for b in all_bat_combos if b["total_cap"] == selected_bat_cap]
-    bat_brand_options = [
-        f"{b['qty']}x {b['brand']} ({b['unit_cap']} kWh) - الإجمالي (${b['total_price']})" 
-        for b in matching_bat_brands
-    ]
-    
-    selected_bat_brand_str = st.selectbox("2. اختر الماركة والتجميعة المتوفرة لهذه السعة:", options=bat_brand_options)
-    chosen_bat = matching_bat_brands[bat_brand_options.index(selected_bat_brand_str)]
+selected_bat_brand_str = st.selectbox(
+    f"🔋 اختر ماركة بنك البطاريات المتوفرة بسعة ({target_bat_cap} kWh):", 
+    options=bat_brand_options
+)
+chosen_bat = matching_bat_brands[bat_brand_options.index(selected_bat_brand_str)]
 
 st.markdown("---")
 
+# 3. النتيجة والتكلفة الإجمالية
 if st.button("🚀 احسب المنظومة والتكلفة الإجمالية", type="primary", use_container_width=True):
     panels_info = calculate_panels(day_amp, req_kwh, chosen_panel)
     ac_board_cost = get_ac_board_price(day_amp)
@@ -228,11 +201,8 @@ if st.button("🚀 احسب المنظومة والتكلفة الإجمالية
     bat_cost = chosen_bat["total_price"]
     
     total_cost = panels_cost + dc_acc_cost + inv_cost + bat_cost + ac_board_cost + EARTHING_SYSTEM_PRICE
-    
-    if chosen_inverter["power_kw"] < recommended_kw:
-        st.warning(f"⚠️ تنبيه: قدرة العاكس المختار ({chosen_inverter['power_kw']} kW) أقل من الحمل المطلوب مع هامش الأمان ({recommended_kw:.2f} kW). يُفضل اختيار قدرة أعلى.")
 
-    # 1. التفاصيل الرياضية
+    # 1. التفاصيل الرياضية (تظهر فقط عند تفعيلها من القائمة الجانبية)
     if show_math_steps:
         st.subheader("1️⃣ الخطوات والتفاصيل الرياضية")
         with st.expander("عرض التفاصيل الرياضية الحسابية", expanded=True):
