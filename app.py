@@ -90,7 +90,7 @@ def calculate_panels(day_current, required_battery_kwh, selected_panel):
 # 4. واجهة المستخدم (User Interface)
 # ==========================================
 st.title("☀️ حاسبة وتصميم المنظومات الشمسية")
-st.caption("إعداد المهندس مراد - حساب المكونات والماركات المتاحة")
+st.caption("إعداد المهندس محمد , المهندسة زينة- حساب المكونات والماركات المتاحة")
 
 st.sidebar.header("⚙️ إعدادات العرض")
 show_math_steps = st.sidebar.checkbox("إظهار الخطوات والحسابات الرياضية", value=False)
