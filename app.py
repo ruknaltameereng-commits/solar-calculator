@@ -5,13 +5,13 @@ import math
 # 1. إعدادات الصفحة
 # ==========================================
 st.set_page_config(
-    page_title="حاسبة المنظومات الشمسية - المهندس مراد",
+    page_title="RUK calculator - المهندس محمد",
     page_icon="☀️",
     layout="wide"
 )
 
 # ==========================================
-# 2. سُلم الأسعار والمعايير الفنية M3
+# 2. البيانات والمعايير الفنية M3
 # ==========================================
 PANEL_SPECS = {
     "power_w": 640,
@@ -22,14 +22,15 @@ PANEL_SPECS = {
 DC_ACCESSORIES_PRICE_PER_STRING = 30
 EARTHING_SYSTEM_PRICE = 160
 
-INVERTERS = [
-    {"name": "Growatt 6 kW Single Phase (IP21)", "power_kw": 6.0, "price": 400, "phase": "single"},
-    {"name": "Deye / Solis 6 kW Single Phase (IP65)", "power_kw": 6.0, "price": 1350, "phase": "single"},
-    {"name": "Deye / Solis 8 kW Single Phase (IP65)", "power_kw": 8.0, "price": 1550, "phase": "single"},
-    {"name": "Deye 10 kW Single Phase (IP65)", "power_kw": 10.0, "price": 1750, "phase": "single"},
-    {"name": "Deye 12 kW Single Phase", "power_kw": 12.0, "price": 1900, "phase": "single"},
-    {"name": "Deye High Voltage 30 kW 3-Phase (HV-3PH)", "power_kw": 30.0, "price": 3800, "phase": "three"},
-    {"name": "Deye High Voltage 50 kW 3-Phase (HV-3PH)", "power_kw": 50.0, "price": 5200, "phase": "three"}
+# قائمة ماركات وأسعار العواكس المتوفرة
+INVERTER_BRANDS = [
+    {"brand": "Growatt 6 kW Single Phase (IP21)", "power_kw": 6.0, "price": 400, "phase": "single"},
+    {"brand": "Solis / Deye 6 kW Single Phase (IP65)", "power_kw": 6.0, "price": 1350, "phase": "single"},
+    {"brand": "Solis / Deye 8 kW Single Phase (IP65)", "power_kw": 8.0, "price": 1550, "phase": "single"},
+    {"brand": "Deye 10 kW Single Phase (IP65)", "power_kw": 10.0, "price": 1750, "phase": "single"},
+    {"brand": "Deye 12 kW Single Phase", "power_kw": 12.0, "price": 1900, "phase": "single"},
+    {"brand": "Deye High Voltage 30 kW 3-Phase (HV-3PH)", "power_kw": 30.0, "price": 3800, "phase": "three"},
+    {"brand": "Deye High Voltage 50 kW 3-Phase (HV-3PH)", "power_kw": 50.0, "price": 5200, "phase": "three"}
 ]
 
 BATTERIES = [
@@ -106,29 +107,16 @@ def calculate_panels(day_current, required_battery_kwh):
                 "panels_per_string": panels_per_string
             }
 
-def select_inverter(day_current, is_hv_3ph):
-    load_kw = (day_current * 230) / 1000.0
-    required_kw_with_safety = load_kw * 1.2
-    
-    target_phase = "three" if is_hv_3ph else "single"
-    
-    for inv in INVERTERS:
-        if inv["power_kw"] >= required_kw_with_safety and inv["phase"] == target_phase:
-            return inv, load_kw, required_kw_with_safety
-    
-    # في حال تجاوز القدرة المتاحة
-    filtered = [i for i in INVERTERS if i["phase"] == target_phase]
-    return filtered[-1], load_kw, required_kw_with_safety
-
 # ==========================================
 # 4. واجهة المستخدم (User Interface)
 # ==========================================
 st.title("☀️ حاسبة وتصميم المنظومات الشمسية")
-st.caption("إعداد المهندس مراد - حساب وتكلفة المكونات تلقائياً")
+st.caption("إعداد المهندس مراد - حساب المكونات وتخصيص ماركة العاكس")
 
 st.markdown("---")
 
-# إدخال البيانات
+# 1. إدخال أحمال المنظومة
+st.subheader("📥 إدخال بيانات المنظومة")
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -142,21 +130,49 @@ with col3:
 
 is_hv_3ph = st.checkbox("تطبيق نظام HV-3PH (ثلاثي الأطوار / High Voltage)", value=False)
 
+# 2. اختيار ماركة العاكس
+st.markdown("---")
+st.subheader("🔌 اختيار ماركة العاكس (Inverter)")
+
+# تصفية العواكس المناسبة بناءً على نوع النظام (Single / 3-Phase)
+target_phase = "three" if is_hv_3ph else "single"
+available_inverters = [inv for inv in INVERTER_BRANDS if inv["phase"] == target_phase]
+
+# إنشاء قائمة الخيارات للعرض مع السعر
+inverter_options = [f"{inv['brand']} - بسعر (${inv['price']})" for inv in available_inverters]
+
+selected_inverter_str = st.selectbox(
+    "اختر ماركة العاكس المفضل لديك:",
+    options=inverter_options
+)
+
+# معرفة العاكس المختار
+selected_index = inverter_options.index(selected_inverter_str)
+chosen_inverter = available_inverters[selected_index]
+
 st.markdown("---")
 
-if st.button("🚀 احسب المنظومة الآن", type="primary", use_container_width=True):
+if st.button("🚀 احسب المنظومة والتكلفة الإجمالية", type="primary", use_container_width=True):
     # الحسابات
     req_kwh, bat_selected = calculate_battery_bank(night_amp, night_hours)
     panels_info = calculate_panels(day_amp, req_kwh)
-    inverter, load_kw, required_kw_with_safety = select_inverter(day_amp, is_hv_3ph)
     ac_board_cost = get_ac_board_price(day_amp)
+    
+    # حساب القدرة والقدرة المطلوبة للعاكس للتنبيه
+    load_kw = (day_amp * 230) / 1000.0
+    required_kw_with_safety = load_kw * 1.2
     
     panels_cost = panels_info["total_panels"] * PANEL_SPECS["price_per_unit"]
     dc_acc_cost = panels_info["strings_count"] * DC_ACCESSORIES_PRICE_PER_STRING
-    inv_cost = inverter["price"]
+    inv_cost = chosen_inverter["price"]
     bat_cost = bat_selected["price"] * bat_selected["qty"]
+    
     total_cost = panels_cost + dc_acc_cost + inv_cost + bat_cost + ac_board_cost + EARTHING_SYSTEM_PRICE
     
+    # تنبيه في حال كانت قدرة العاكس المختار أقل من الحمل
+    if chosen_inverter["power_kw"] < required_kw_with_safety:
+        st.warning(f"⚠️ تنبيه: قدرة العاكس المختار ({chosen_inverter['power_kw']} kW) أقل من القدرة المطلوبة مع هامش الأمان ({required_kw_with_safety:.2f} kW). يُفضل اختيار عاكس أقدر.")
+
     # 1. التفاصيل الرياضية
     st.subheader("1️⃣ الخطوات والتفاصيل الرياضية")
     
@@ -171,9 +187,9 @@ if st.button("🚀 احسب المنظومة الآن", type="primary", use_cont
         st.write(f"- المجموع النظري: `{panels_info['total_panels_raw']:.2f}` لوح")
         st.write(f"- التقريب وتوزيع السلاسل المتساوي: **{panels_info['total_panels']} لوحاً** موزعة على **{panels_info['strings_count']} سلاسل × {panels_info['panels_per_string']} ألواح/سلسلة**.")
         
-        st.write(f"**ج. العاكس الهجين:**")
+        st.write(f"**ج. العاكس الهجين المختار:**")
         st.write(f"- حمل النهار الصافي: `{load_kw:.2f} kW` | مع هامش أمان (+20%): `{required_kw_with_safety:.2f} kW`")
-        st.write(f"- العاكس المعتمد: **{inverter['name']}**")
+        st.write(f"- الماركة المختارة: **{chosen_inverter['brand']}** بسعر **${inv_cost}**")
 
     # 2. جدول المواد
     st.subheader("2️⃣ جدول المواد والتفاصيل")
@@ -181,7 +197,7 @@ if st.button("🚀 احسب المنظومة الآن", type="primary", use_cont
     table_data = [
         {"المكون / الملحق": "الألواح الشمسية", "المواصفات والوصف": "لوح 640W (شامل الهيكل والتركيب)", "الكمية": f"{panels_info['total_panels']} لوحاً", "سعر الوحدة ($)": f"${PANEL_SPECS['price_per_unit']}", "الإجمالي ($)": f"${panels_cost}"},
         {"المكون / الملحق": "ملحقات الـ DC", "المواصفات والوصف": "أسلاك 40m + قاطع DC + فيوزات + MC4 + أنابيب", "الكمية": f"{panels_info['strings_count']} سلاسل", "سعر الوحدة ($)": f"${DC_ACCESSORIES_PRICE_PER_STRING}", "الإجمالي ($)": f"${dc_acc_cost}"},
-        {"المكون / الملحق": "العاكس الهجين", "المواصفات والوصف": inverter["name"], "الكمية": "1", "سعر الوحدة ($)": f"${inv_cost}", "الإجمالي ($)": f"${inv_cost}"},
+        {"المكون / الملحق": "العاكس الهجين المختار", "المواصفات والوصف": chosen_inverter["brand"], "الكمية": "1", "سعر الوحدة ($)": f"${inv_cost}", "الإجمالي ($)": f"${inv_cost}"},
         {"المكون / الملحق": "بنك البطاريات", "المواصفات والوصف": f"{bat_selected['model']} ({bat_selected['capacity']} kWh)", "الكمية": f"{bat_selected['qty']}", "سعر الوحدة ($)": f"${bat_selected['price']}", "الإجمالي ($)": f"${bat_cost}"},
         {"المكون / الملحق": "بورد الـ AC", "المواصفات والوصف": f"بورد حماية AC لغاية ({day_amp}A)", "الكمية": "1", "سعر الوحدة ($)": f"${ac_board_cost}", "الإجمالي ($)": f"${ac_board_cost}"},
         {"المكون / الملحق": "منظومة التأريض", "المواصفات والوصف": "وتد نحاسي + أسلاك 30m + مادة تأريض + الحفر والربط", "الكمية": "1", "سعر الوحدة ($)": f"${EARTHING_SYSTEM_PRICE}", "الإجمالي ($)": f"${EARTHING_SYSTEM_PRICE}"},
@@ -191,4 +207,4 @@ if st.button("🚀 احسب المنظومة الآن", type="primary", use_cont
 
     # 3. الكلفة الإجمالية
     st.subheader("3️⃣ الكلفة الإجمالية النهائية")
-    st.success(f"💰 **الكلفة الإجمالية المباشرة للمشروع: ${total_cost:,}**")
+    st.success(f"💰 **الكلفة الإجمالية المباشرة للمشروع بناءً على اختيارك: ${total_cost:,}**")
