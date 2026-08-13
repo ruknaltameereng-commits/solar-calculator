@@ -5,7 +5,7 @@ import math
 # 1. إعدادات الصفحة
 # ==========================================
 st.set_page_config(
-    page_title="RUK Calculator- المهندس محمد , المهندسة زينة",
+    page_title="حاسبة المنظومات الشمسية - المهندس مراد",
     page_icon="☀️",
     layout="wide"
 )
@@ -115,7 +115,7 @@ st.caption("إعداد المهندس مراد - حساب المكونات وا�
 
 # إعدادات العرض في القائمة الجانبية (Sidebar)
 st.sidebar.header("⚙️ إعدادات العرض للمستند")
-show_bom_table = st.sidebar.checkbox("إظهار جدول المواد والتفاصيل", value=False)
+show_math_steps = st.sidebar.checkbox("إظهار الخطوات والحسابات الرياضية", value=False)
 
 st.markdown("---")
 
@@ -171,39 +171,38 @@ if st.button("🚀 احسب المنظومة والتكلفة الإجمالية
     if chosen_inverter["power_kw"] < required_kw_with_safety:
         st.warning(f"⚠️ تنبيه: قدرة العاكس المختار ({chosen_inverter['power_kw']} kW) أقل من القدرة المطلوبة مع هامش الأمان ({required_kw_with_safety:.2f} kW). يُفضل اختيار عاكس أقدر.")
 
-    # 1. التفاصيل الرياضية
-    st.subheader("1️⃣ الخطوات والتفاصيل الرياضية")
-    
-    with st.expander("عرض التفاصيل الرياضية الحسابية", expanded=True):
-        st.write(f"**أ. بنك البطاريات:**")
-        st.write(f"- الطاقة المطلوبة ليلاً: `{night_amp}A × 0.285 × {night_hours}h` = **{req_kwh:.2f} kWh**")
-        st.write(f"- الاختيار المعتمد: **{bat_selected['qty']}x {bat_selected['model']} ({bat_selected['capacity']} kWh)** بسعة إجمالية `{bat_selected['capacity'] * bat_selected['qty']} kWh`.")
-        
-        st.write(f"**ب. الألواح الشمسية (640W):**")
-        st.write(f"- ألواح الحمل النهاري: `{panels_info['day_panels_exact']:.2f}` لوح")
-        st.write(f"- ألواح شحن البطارية: `{panels_info['charging_panels_exact']:.2f}` لوح")
-        st.write(f"- المجموع النظري: `{panels_info['total_panels_raw']:.2f}` لوح")
-        st.write(f"- التقريب وتوزيع السلاسل المتساوي: **{panels_info['total_panels']} لوحاً** موزعة على **{panels_info['strings_count']} سلاسل × {panels_info['panels_per_string']} ألواح/سلسلة**.")
-        
-        st.write(f"**ج. العاكس الهجين المختار:**")
-        st.write(f"- حمل النهار الصافي: `{load_kw:.2f} kW` | مع هامش أمان (+20%): `{required_kw_with_safety:.2f} kW`")
-        st.write(f"- الماركة المختارة: **{chosen_inverter['brand']}**")
+    # 1. الخطوات والحسابات الرياضية (تظهر فقط إذا تم تفعيلها من الشريط الجانبي)
+    if show_math_steps:
+        st.subheader("1️⃣ الخطوات والتفاصيل الرياضية")
+        with st.expander("عرض التفاصيل الرياضية الحسابية", expanded=True):
+            st.write(f"**أ. بنك البطاريات:**")
+            st.write(f"- الطاقة المطلوبة ليلاً: `{night_amp}A × 0.285 × {night_hours}h` = **{req_kwh:.2f} kWh**")
+            st.write(f"- الاختيار المعتمد: **{bat_selected['qty']}x {bat_selected['model']} ({bat_selected['capacity']} kWh)** بسعة إجمالية `{bat_selected['capacity'] * bat_selected['qty']} kWh`.")
+            
+            st.write(f"**ب. الألواح الشمسية (640W):**")
+            st.write(f"- ألواح الحمل النهاري: `{panels_info['day_panels_exact']:.2f}` لوح")
+            st.write(f"- ألواح شحن البطارية: `{panels_info['charging_panels_exact']:.2f}` لوح")
+            st.write(f"- المجموع النظري: `{panels_info['total_panels_raw']:.2f}` لوح")
+            st.write(f"- التقريب وتوزيع السلاسل المتساوي: **{panels_info['total_panels']} لوحاً** موزعة على **{panels_info['strings_count']} سلاسل × {panels_info['panels_per_string']} ألواح/سلسلة**.")
+            
+            st.write(f"**ج. العاكس الهجين المختار:**")
+            st.write(f"- حمل النهار الصافي: `{load_kw:.2f} kW` | مع هامش أمان (+20%): `{required_kw_with_safety:.2f} kW`")
+            st.write(f"- الماركة المختارة: **{chosen_inverter['brand']}**")
 
-    # 2. جدول المواد (يتم إظهاره فقط في حال تفعيل الخيار من الشريط الجانبي)
-    if show_bom_table:
-        st.subheader("2️⃣ جدول المواد والتفاصيل")
-        
-        table_data = [
-            {"المكون / الملحق": "الألواح الشمسية", "المواصفات والوصف": "لوح 640W (شامل الهيكل والتركيب)", "الكمية": f"{panels_info['total_panels']} لوحاً", "سعر الوحدة ($)": f"${PANEL_SPECS['price_per_unit']}", "الإجمالي ($)": f"${panels_cost}"},
-            {"المكون / الملحق": "ملحقات الـ DC", "المواصفات والوصف": "أسلاك 40m + قاطع DC + فيوزات + MC4 + أنابيب", "الكمية": f"{panels_info['strings_count']} سلاسل", "سعر الوحدة ($)": f"${DC_ACCESSORIES_PRICE_PER_STRING}", "الإجمالي ($)": f"${dc_acc_cost}"},
-            {"المكون / الملحق": "العاكس الهجين المختار", "المواصفات والوصف": chosen_inverter["brand"], "الكمية": "1", "سعر الوحدة ($)": f"${inv_cost}", "الإجمالي ($)": f"${inv_cost}"},
-            {"المكون / الملحق": "بنك البطاريات", "المواصفات والوصف": f"{bat_selected['model']} ({bat_selected['capacity']} kWh)", "الكمية": f"{bat_selected['qty']}", "سعر الوحدة ($)": f"${bat_selected['price']}", "الإجمالي ($)": f"${bat_cost}"},
-            {"المكون / الملحق": "بورد الـ AC", "المواصفات والوصف": f"بورد حماية AC لغاية ({day_amp}A)", "الكمية": "1", "سعر الوحدة ($)": f"${ac_board_cost}", "الإجمالي ($)": f"${ac_board_cost}"},
-            {"المكون / الملحق": "منظومة التأريض", "المواصفات والوصف": "وتد نحاسي + أسلاك 30m + مادة تأريض + الحفر والربط", "الكمية": "1", "سعر الوحدة ($)": f"${EARTHING_SYSTEM_PRICE}", "الإجمالي ($)": f"${EARTHING_SYSTEM_PRICE}"},
-        ]
-        
-        st.table(table_data)
+    # 2. جدول المواد والتفاصيل (يظهر دائمًا للزبون)
+    st.subheader("📋 جدول المواد والتفاصيل")
+    
+    table_data = [
+        {"المكون / الملحق": "الألواح الشمسية", "المواصفات والوصف": "لوح 640W (شامل الهيكل والتركيب)", "الكمية": f"{panels_info['total_panels']} لوحاً", "سعر الوحدة ($)": f"${PANEL_SPECS['price_per_unit']}", "الإجمالي ($)": f"${panels_cost}"},
+        {"المكون / الملحق": "ملحقات الـ DC", "المواصفات والوصف": "أسلاك 40m + قاطع DC + فيوزات + MC4 + أنابيب", "الكمية": f"{panels_info['strings_count']} سلاسل", "سعر الوحدة ($)": f"${DC_ACCESSORIES_PRICE_PER_STRING}", "الإجمالي ($)": f"${dc_acc_cost}"},
+        {"المكون / الملحق": "العاكس الهجين المختار", "المواصفات والوصف": chosen_inverter["brand"], "الكمية": "1", "سعر الوحدة ($)": f"${inv_cost}", "الإجمالي ($)": f"${inv_cost}"},
+        {"المكون / الملحق": "بنك البطاريات", "المواصفات والوصف": f"{bat_selected['model']} ({bat_selected['capacity']} kWh)", "الكمية": f"{bat_selected['qty']}", "سعر الوحدة ($)": f"${bat_selected['price']}", "الإجمالي ($)": f"${bat_cost}"},
+        {"المكون / الملحق": "بورد الـ AC", "المواصفات والوصف": f"بورد حماية AC لغاية ({day_amp}A)", "الكمية": "1", "سعر الوحدة ($)": f"${ac_board_cost}", "الإجمالي ($)": f"${ac_board_cost}"},
+        {"المكون / الملحق": "منظومة التأريض", "المواصفات والوصف": "وتد نحاسي + أسلاك 30m + مادة تأريض + الحفر والربط", "الكمية": "1", "سعر الوحدة ($)": f"${EARTHING_SYSTEM_PRICE}", "الإجمالي ($)": f"${EARTHING_SYSTEM_PRICE}"},
+    ]
+    
+    st.table(table_data)
 
     # 3. الكلفة الإجمالية
-    st.subheader("3️⃣ الكلفة الإجمالية النهائية")
-    st.success(f"💰 **الكلفة الإجمالية المباشرة للمشروع بناءً على اختيارك: ${total_cost:,}**")
+    st.subheader("💰 الكلفة الإجمالية النهائية")
+    st.success(f"**الكلفة الإجمالية المباشرة للمشروع بناءً على اختيارك: ${total_cost:,}**")
