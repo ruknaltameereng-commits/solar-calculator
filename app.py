@@ -5,7 +5,7 @@ import math
 # 1. إعدادات الصفحة
 # ==========================================
 st.set_page_config(
-    page_title="RUK calculator - المهندس محمد , المهندسة زينة",
+    page_title="حاسبة ركن التعمير - المهندس محمد , المهندسة زينة",
     page_icon="☀️",
     layout="wide"
 )
