@@ -23,151 +23,25 @@ PANEL_OPTIONS = [
 DC_ACCESSORIES_PRICE_PER_STRING = 30
 EARTHING_SYSTEM_PRICE = 160
 
-# قاعدة بيانات الإنفرترات المدعومة ببيانات Datasheets الرسمية
-# (I_dc_max من الكتالوج الرسمي، V_dc = 51.5V ، V_grid = 210V ، نسبة الأمان = 80%)
 INVERTER_BRANDS = [
-    # Deye
-    {
-        "brand": "Deye Off-Grid (6K)", 
-        "model": "SUN-6K-OG", 
-        "power_kw": 6.0, 
-        "price": 700, 
-        "phase": "single",
-        "max_charge_idc": 120,
-        "cable_spec": "4 x 4 mm²"
-    },
-    {
-        "brand": "Deye Hybrid (5K)", 
-        "model": "SUN-5K-SG04LP1-EU-SM2", 
-        "power_kw": 5.0, 
-        "price": 750, 
-        "phase": "single",
-        "max_charge_idc": 120,
-        "cable_spec": "4 x 4 mm²"
-    },
-    {
-        "brand": "Deye Hybrid (6K)", 
-        "model": "SUN-6K-SG04LP1-EU-SM2", 
-        "power_kw": 6.0, 
-        "price": 875, 
-        "phase": "single",
-        "max_charge_idc": 135,
-        "cable_spec": "4 x 6 mm²"
-    },
-    {
-        "brand": "Deye Hybrid (8K)", 
-        "model": "SUN-8K-SG05LP1-EU-SM2", 
-        "power_kw": 8.0, 
-        "price": 1225, 
-        "phase": "single",
-        "max_charge_idc": 190,
-        "cable_spec": "4 x 10 mm²"
-    },
-    {
-        "brand": "Deye Hybrid (12K)", 
-        "model": "SUN-12K-SG02LP1-EU-AM3", 
-        "power_kw": 12.0, 
-        "price": 1800, 
-        "phase": "single",
-        "max_charge_idc": 250,
-        "cable_spec": "4 x 16 mm²"
-    },
-    {
-        "brand": "Deye Hybrid (16K)", 
-        "model": "SUN-16K-SG01LP1-EU", 
-        "power_kw": 16.0, 
-        "price": 2000, 
-        "phase": "single",
-        "max_charge_idc": 290,
-        "cable_spec": "4 x 16 mm²"
-    },
+    {"brand": "Deye Off-Grid (6K)", "model": "SUN-6K-OG", "power_kw": 6.0, "price": 700, "phase": "single", "max_charge_idc": 120, "cable_spec": "4 x 4 mm²"},
+    {"brand": "Deye Hybrid (5K)", "model": "SUN-5K-SG04LP1-EU-SM2", "power_kw": 5.0, "price": 750, "phase": "single", "max_charge_idc": 120, "cable_spec": "4 x 4 mm²"},
+    {"brand": "Deye Hybrid (6K)", "model": "SUN-6K-SG04LP1-EU-SM2", "power_kw": 6.0, "price": 875, "phase": "single", "max_charge_idc": 135, "cable_spec": "4 x 6 mm²"},
+    {"brand": "Deye Hybrid (8K)", "model": "SUN-8K-SG05LP1-EU-SM2", "power_kw": 8.0, "price": 1225, "phase": "single", "max_charge_idc": 190, "cable_spec": "4 x 10 mm²"},
+    {"brand": "Deye Hybrid (12K)", "model": "SUN-12K-SG02LP1-EU-AM3", "power_kw": 12.0, "price": 1800, "phase": "single", "max_charge_idc": 250, "cable_spec": "4 x 16 mm²"},
+    {"brand": "Deye Hybrid (16K)", "model": "SUN-16K-SG01LP1-EU", "power_kw": 16.0, "price": 2000, "phase": "single", "max_charge_idc": 290, "cable_spec": "4 x 16 mm²"},
 
-    # Solis
-    {
-        "brand": "Solis Hybrid (5K)", 
-        "model": "S6-EH1P5K-L-PLUS", 
-        "power_kw": 5.0, 
-        "price": 750, 
-        "phase": "single",
-        "max_charge_idc": 112,
-        "cable_spec": "4 x 4 mm²"
-    },
-    {
-        "brand": "Solis Hybrid (6K)", 
-        "model": "S6-EH1P6K-L-PLUS", 
-        "power_kw": 6.0, 
-        "price": 800, 
-        "phase": "single",
-        "max_charge_idc": 135,
-        "cable_spec": "4 x 6 mm²"
-    },
-    {
-        "brand": "Solis Hybrid (8K)", 
-        "model": "S6-EH1P8K-L-PLUS", 
-        "power_kw": 8.0, 
-        "price": 1300, 
-        "phase": "single",
-        "max_charge_idc": 190,
-        "cable_spec": "4 x 10 mm²"
-    },
-    {
-        "brand": "Solis Hybrid (10K)", 
-        "model": "S6-EH1P10K-L-PLUS", 
-        "power_kw": 10.0, 
-        "price": 1650, 
-        "phase": "single",
-        "max_charge_idc": 210,
-        "cable_spec": "4 x 10 mm²"
-    },
-    {
-        "brand": "Solis Hybrid (12K)", 
-        "model": "S6-EH1P12K03-NV-YD-L", 
-        "power_kw": 12.0, 
-        "price": 1900, 
-        "phase": "single",
-        "max_charge_idc": 250,
-        "cable_spec": "4 x 16 mm²"
-    },
-    {
-        "brand": "Solis Hybrid (16K)", 
-        "model": "S6-EH1P16K03-NV-YD-L", 
-        "power_kw": 16.0, 
-        "price": 2100, 
-        "phase": "single",
-        "max_charge_idc": 290,
-        "cable_spec": "4 x 16 mm²"
-    },
+    {"brand": "Solis Hybrid (5K)", "model": "S6-EH1P5K-L-PLUS", "power_kw": 5.0, "price": 750, "phase": "single", "max_charge_idc": 112, "cable_spec": "4 x 4 mm²"},
+    {"brand": "Solis Hybrid (6K)", "model": "S6-EH1P6K-L-PLUS", "power_kw": 6.0, "price": 800, "phase": "single", "max_charge_idc": 135, "cable_spec": "4 x 6 mm²"},
+    {"brand": "Solis Hybrid (8K)", "model": "S6-EH1P8K-L-PLUS", "power_kw": 8.0, "price": 1300, "phase": "single", "max_charge_idc": 190, "cable_spec": "4 x 10 mm²"},
+    {"brand": "Solis Hybrid (10K)", "model": "S6-EH1P10K-L-PLUS", "power_kw": 10.0, "price": 1650, "phase": "single", "max_charge_idc": 210, "cable_spec": "4 x 10 mm²"},
+    {"brand": "Solis Hybrid (12K)", "model": "S6-EH1P12K03-NV-YD-L", "power_kw": 12.0, "price": 1900, "phase": "single", "max_charge_idc": 250, "cable_spec": "4 x 16 mm²"},
+    {"brand": "Solis Hybrid (16K)", "model": "S6-EH1P16K03-NV-YD-L", "power_kw": 16.0, "price": 2100, "phase": "single", "max_charge_idc": 290, "cable_spec": "4 x 16 mm²"},
 
-    # SRNE
-    {
-        "brand": "SRNE Off-Grid (16K)", 
-        "model": "SRNE-16K-IP20", 
-        "power_kw": 16.0, 
-        "price": 1600, 
-        "phase": "single",
-        "max_charge_idc": 200,
-        "cable_spec": "4 x 10 mm²"
-    },
+    {"brand": "SRNE Off-Grid (16K)", "model": "SRNE-16K-IP20", "power_kw": 16.0, "price": 1600, "phase": "single", "max_charge_idc": 200, "cable_spec": "4 x 10 mm²"},
 
-    # 3-Phase HV
-    {
-        "brand": "Deye HV 3-Phase (30K)", 
-        "model": "SUN-30K-SG01HP3", 
-        "power_kw": 30.0, 
-        "price": 3800, 
-        "phase": "three",
-        "max_charge_idc": 100,
-        "cable_spec": "4 x 16 mm²"
-    },
-    {
-        "brand": "Deye HV 3-Phase (50K)", 
-        "model": "SUN-50K-SG01HP3", 
-        "power_kw": 50.0, 
-        "price": 5200, 
-        "phase": "three",
-        "max_charge_idc": 150,
-        "cable_spec": "4 x 25 mm²"
-    }
+    {"brand": "Deye HV 3-Phase (30K)", "model": "SUN-30K-SG01HP3", "power_kw": 30.0, "price": 3800, "phase": "three", "max_charge_idc": 100, "cable_spec": "4 x 16 mm²"},
+    {"brand": "Deye HV 3-Phase (50K)", "model": "SUN-50K-SG01HP3", "power_kw": 50.0, "price": 5200, "phase": "three", "max_charge_idc": 150, "cable_spec": "4 x 25 mm²"}
 ]
 
 BATTERIES = [
@@ -195,7 +69,7 @@ def get_ac_board_price(current_amp):
     elif 120 < current_amp <= 150:
         return 450
     else:
-        return 180
+        return 250
 
 def calculate_panels_auto(day_current, required_battery_kwh, selected_panel):
     panel_watt = selected_panel["power_w"]
@@ -207,7 +81,7 @@ def calculate_panels_auto(day_current, required_battery_kwh, selected_panel):
     total_panels_raw = (day_power_w + charging_power_w) / panel_watt
     target_panels = math.ceil(total_panels_raw)
     
-    for num_strings in range(1, 10):
+    for num_strings in range(1, 15):
         panels_per_string = math.ceil(target_panels / num_strings)
         if panels_per_string <= max_string:
             return panels_per_string * num_strings, num_strings, panels_per_string
@@ -216,8 +90,8 @@ def calculate_panels_auto(day_current, required_battery_kwh, selected_panel):
 # ==========================================
 # 4. واجهة المستخدم (User Interface)
 # ==========================================
-st.title("☀️ RUKEN AL TAMEER CALCULATER - شركة ركن التعمير")
-st.caption(" اعداد المهندس محمد النوري والمهندسة زينة الحمداني برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
+st.title("☀️ RUKEN AL TAMEER CALCULATOR - شركة ركن التعمير")
+st.caption(" اعداد المهندس محمد النوري والمهندسة زينة الحمداني برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعل")
 
 st.markdown("---")
 
@@ -226,10 +100,10 @@ st.subheader("📥 1. إدخال أحمال المنظومة")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    day_amp = st.number_input("أمبير النهار (ن)", min_value=1, max_value=200, value=30, step=1)
+    day_amp = st.number_input("أمبير النهار (ن)", min_value=1, max_value=300, value=50, step=1)
 
 with col2:
-    night_amp = st.number_input("أمبير الليل (ل)", min_value=1, max_value=200, value=12, step=1)
+    night_amp = st.number_input("أمبير الليل (ل)", min_value=1, max_value=300, value=20, step=1)
 
 with col3:
     night_hours = st.number_input("ساعات التشغيل الليلي (س)", min_value=1, max_value=24, value=4, step=1)
@@ -254,24 +128,31 @@ for pkw in available_powers:
         auto_power_kw = pkw
         break
 
-# ب. تحديد البطارية التلقائية الأقرب (أقل هامش زيادة لمراعاة التكلفة)
+# ب. تحديد البطارية التلقائية الأقرب (تم رفع حد التجميع حتى 10 بطاريات للأحمال العالية)
 all_bat_combos = []
 for bat in BATTERIES:
-    for qty in [1, 2, 3]:
+    for qty in range(1, 11): # تم رفع النطاق لغاية 10 بطاريات
         total_cap = bat["capacity_kwh"] * qty
-        if total_cap >= req_kwh:
-            all_bat_combos.append({
-                "brand": bat["name"],
-                "unit_cap": bat["capacity_kwh"],
-                "total_cap": round(total_cap, 2),
-                "qty": qty,
-                "unit_price": bat["price"],
-                "total_price": bat["price"] * qty,
-                "diff": total_cap - req_kwh
-            })
+        all_bat_combos.append({
+            "brand": bat["name"],
+            "unit_cap": bat["capacity_kwh"],
+            "total_cap": round(total_cap, 2),
+            "qty": qty,
+            "unit_price": bat["price"],
+            "total_price": bat["price"] * qty,
+            "diff": total_cap - req_kwh
+        })
 
-all_bat_combos.sort(key=lambda x: x["diff"])
-auto_bat_combo = all_bat_combos[0] if all_bat_combos else None
+# تصفية التجميعات التي تغطي أو تتجاوز الحاجة
+valid_combos = [b for b in all_bat_combos if b["diff"] >= 0]
+
+if valid_combos:
+    valid_combos.sort(key=lambda x: x["diff"])
+    auto_bat_combo = valid_combos[0]
+else:
+    # في حال كان الحمل كبيراً جداً، اختر أكبر تجميعة متوفرة لتجنب خطأ الكود
+    all_bat_combos.sort(key=lambda x: x["total_cap"], reverse=True)
+    auto_bat_combo = all_bat_combos[0]
 
 # 3. قسم خيارات التعديل اليدوي المباشر
 st.subheader("⚙️ 2. تحديد الماركات وتخصيص الخيارات (يدوياً حسب الرغبة)")
@@ -289,7 +170,7 @@ with col_p:
     
     override_panels = st.checkbox("تعديل يدوي على عدد الألواح")
     if override_panels:
-        final_panels = st.number_input("حدد عدد الألواح المطلوب:", min_value=1, max_value=100, value=auto_panels, step=1)
+        final_panels = st.number_input("حدد عدد الألواح المطلوب:", min_value=1, max_value=200, value=auto_panels, step=1)
     else:
         final_panels = auto_panels
 
@@ -313,22 +194,11 @@ with col_b:
     st.markdown("##### 🔋 بنك البطاريات")
     override_bat = st.checkbox("تعديل يدوي / تغيير حجم البطارية")
     
-    all_possible_bats = []
-    for bat in BATTERIES:
-        for qty in [1, 2, 3]:
-            all_possible_bats.append({
-                "brand": bat["name"],
-                "unit_cap": bat["capacity_kwh"],
-                "total_cap": round(bat["capacity_kwh"] * qty, 2),
-                "qty": qty,
-                "unit_price": bat["price"],
-                "total_price": bat["price"] * qty
-            })
-            
+    bat_display_list = [f"{b['qty']}x {b['brand']} ({b['total_cap']} kWh) - (${b['total_price']})" for b in all_bat_combos]
+    
     if override_bat:
-        bat_display_list = [f"{b['qty']}x {b['brand']} ({b['total_cap']} kWh) - (${b['total_price']})" for b in all_possible_bats]
         selected_bat_str = st.selectbox("اختر البطارية يدوياً:", options=bat_display_list)
-        chosen_bat = all_possible_bats[bat_display_list.index(selected_bat_str)]
+        chosen_bat = all_bat_combos[bat_display_list.index(selected_bat_str)]
     else:
         chosen_bat = auto_bat_combo
 
@@ -349,7 +219,6 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
     
     total_cost = panels_cost + dc_acc_cost + inv_cost + bat_cost + ac_board_cost + EARTHING_SYSTEM_PRICE
     
-    # حسابات شحن الـ AC المعتمدة على داتا شيت الجهاز (80% من تيار الشحن، 210V، جهد بطارية 51.5V)
     actual_charge_idc = chosen_inverter["max_charge_idc"] * 0.80
     charge_power_w = actual_charge_idc * 51.5
     charge_iac_210v = charge_power_w / (210.0 * 0.95)
@@ -366,8 +235,8 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
     else:
         st.success(f"✅ **الإنفرتر:** قدرة الإنفرتر متوافقة تماماً مع الأحمال المطلوبة.")
         
-    actual_hours = chosen_bat["total_cap"] / (0.285 * night_amp)
-    actual_amp_available = chosen_bat["total_cap"] / (0.285 * night_hours)
+    actual_hours = chosen_bat["total_cap"] / (0.285 * night_amp) if night_amp > 0 else 0
+    actual_amp_available = chosen_bat["total_cap"] / (0.285 * night_hours) if night_hours > 0 else 0
     
     if chosen_bat["total_cap"] < req_kwh * 0.95:
         st.warning(f"⚠️ **تنبيه سعة البطارية:** سعة البطارية المختارة ({chosen_bat['total_cap']} kWh) أقل من المطلوب ليلاً ({req_kwh:.2f} kWh). ستكفي لتشغيل {night_amp} أمبير لمدة **{actual_hours:.2f} ساعة فقط** بدلاً من {night_hours} ساعات.")
@@ -376,11 +245,9 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
 
     st.markdown("---")
 
-    # الملاحظات الحسابية المحددة والخاصة بك
     st.info(f"ℹ️ **ملاحظة حسابية (1):** كمية الأمبيرات التي يمكن أخذها من بنك البطاريات المختار خلال ({night_hours}) ساعات هي: **{actual_amp_available:.2f} أمبير**.")
     st.info(f"ℹ️ **ملاحظة حسابية (2):** عدد الساعات التي يمكن خلالها استخدام بنك البطاريات المختار عند سحب ({night_amp}) أمبير هي: **{int(actual_hours)} ساعات و {int((actual_hours % 1) * 60)} دقيقة**.")
     
-    # ملاحظة كابل الـ AC من الشبكة الوطنية بناءً على الداتا شيت والمعايير المعتمدة
     st.warning(
         f"🔌 **ملاحظة توصيل كابل الشحن من الشبكة الوطنية (210V):**\n\n"
         f"عند ضبط تيار الشحن على النسبة الآمنة **80%** ({actual_charge_idc:.1f}A DC) لحماية الجهاز، "
@@ -404,6 +271,5 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
     
     st.table(table_data)
 
-    # الكلفة الإجمالية
     st.subheader("💰 الكلفة الإجمالية النهائية")
     st.success(f"**الكلفة الإجمالية المباشرة للمشروع بناءً على اختيار الماركات: ${total_cost:,}**")
