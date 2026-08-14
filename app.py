@@ -29,7 +29,7 @@ INVERTER_BRANDS = [
     {"brand": "Deye Hybrid (6K)", "model": "SUN-6K-SG04LP1-EU-SM2", "power_kw": 6.0, "price": 875, "phase": "single", "max_charge_idc": 135, "cable_spec": "4 x 6 mm²"},
     {"brand": "Deye Hybrid (8K)", "model": "SUN-8K-SG05LP1-EU-SM2", "power_kw": 8.0, "price": 1225, "phase": "single", "max_charge_idc": 190, "cable_spec": "4 x 10 mm²"},
     {"brand": "Deye Hybrid (12K)", "model": "SUN-12K-SG02LP1-EU-AM3", "power_kw": 12.0, "price": 1800, "phase": "single", "max_charge_idc": 250, "cable_spec": "4 x 16 mm²"},
-    {"brand": "Deye Hybrid (16K)", "model": "SUN-16K-SG01LP1-EU", "power_kw": 16.0, "price": 2000, "phase": "single", "max_charge_idc": 290, "cable_spec": "4 x 16 mm²"},
+    {"brand": "Deye Hybrid (16K)", "model": "SUN-16K-SG01LP1-EU", "power_kw": 2000, "price": 2000, "phase": "single", "max_charge_idc": 290, "cable_spec": "4 x 16 mm²"},
 
     {"brand": "Solis Hybrid (5K)", "model": "S6-EH1P5K-L-PLUS", "power_kw": 5.0, "price": 750, "phase": "single", "max_charge_idc": 112, "cable_spec": "4 x 4 mm²"},
     {"brand": "Solis Hybrid (6K)", "model": "S6-EH1P6K-L-PLUS", "power_kw": 6.0, "price": 800, "phase": "single", "max_charge_idc": 135, "cable_spec": "4 x 6 mm²"},
@@ -43,6 +43,11 @@ INVERTER_BRANDS = [
     {"brand": "Deye HV 3-Phase (30K)", "model": "SUN-30K-SG01HP3", "power_kw": 30.0, "price": 3800, "phase": "three", "max_charge_idc": 100, "cable_spec": "4 x 16 mm²"},
     {"brand": "Deye HV 3-Phase (50K)", "model": "SUN-50K-SG01HP3", "power_kw": 50.0, "price": 5200, "phase": "three", "max_charge_idc": 150, "cable_spec": "4 x 25 mm²"}
 ]
+
+# تعديل القيمة الاسمية للـ Deye 16K الصحيحة
+for inv in INVERTER_BRANDS:
+    if inv["model"] == "SUN-16K-SG01LP1-EU":
+        inv["power_kw"] = 16.0
 
 BATTERIES = [
     {"name": "AOKLY جدارية / أرضية", "capacity_kwh": 10.24, "price": 1350},
@@ -69,7 +74,7 @@ def get_ac_board_price(current_amp):
     elif 120 < current_amp <= 150:
         return 450
     else:
-        return 250
+        return 550
 
 def calculate_panels_auto(day_current, required_battery_kwh, selected_panel):
     panel_watt = selected_panel["power_w"]
@@ -87,11 +92,34 @@ def calculate_panels_auto(day_current, required_battery_kwh, selected_panel):
             return panels_per_string * num_strings, num_strings, panels_per_string
     return target_panels, 1, target_panels
 
+def get_valid_inverter_combos(req_kw, target_phase):
+    """استخراج جميع خيارات التوازي المناسبة للحمل مرتبة حسب الكفاءة والسعر"""
+    phase_inverters = [inv for inv in INVERTER_BRANDS if inv["phase"] == target_phase]
+    valid_combos = []
+    
+    for inv in phase_inverters:
+        for qty in range(1, 5): # اختبار من 1 إلى 4 أجهزة على التوازي
+            total_power = inv["power_kw"] * qty
+            if total_power >= req_kw:
+                combo_label = f"{qty}x {inv['brand']} [{inv['model']}] (إجمالي {total_power} kW) - (${inv['price'] * qty})"
+                valid_combos.append({
+                    "label": combo_label,
+                    "inverter": inv,
+                    "qty": qty,
+                    "total_power": total_power,
+                    "total_price": inv["price"] * qty,
+                    "excess": total_power - req_kw
+                })
+    
+    # الترتيب: أقل عدد أجهزة أولاً، ثم أقل سعر إجمالي
+    valid_combos.sort(key=lambda x: (x["qty"], x["total_price"], x["excess"]))
+    return valid_combos
+
 # ==========================================
 # 4. واجهة المستخدم (User Interface)
 # ==========================================
 st.title("☀️ RUKEN AL TAMEER CALCULATOR - شركة ركن التعمير")
-st.caption(" اعداد المهندس محمد النوري والمهندسة زينة الحمداني برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعل")
+st.caption(" اعداد المهندس محمد النوري والمهندسة زينة ثامر برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
 
 st.markdown("---")
 
@@ -100,10 +128,10 @@ st.subheader("📥 1. إدخال أحمال المنظومة")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    day_amp = st.number_input("أمبير النهار (ن)", min_value=1, max_value=300, value=50, step=1)
+    day_amp = st.number_input("أمبير النهار (ن)", min_value=1, max_value=300, value=100, step=1)
 
 with col2:
-    night_amp = st.number_input("أمبير الليل (ل)", min_value=1, max_value=300, value=20, step=1)
+    night_amp = st.number_input("أمبير الليل (ل)", min_value=1, max_value=300, value=60, step=1)
 
 with col3:
     night_hours = st.number_input("ساعات التشغيل الليلي (س)", min_value=1, max_value=24, value=4, step=1)
@@ -118,20 +146,13 @@ recommended_kw = load_kw * 1.2
 req_kwh = night_amp * 0.285 * night_hours
 target_phase = "three" if is_hv_3ph else "single"
 
-# أ. تحديد الإنفرتر التلقائي
-phase_inverters = [inv for inv in INVERTER_BRANDS if inv["phase"] == target_phase]
-available_powers = sorted(list(set([inv["power_kw"] for inv in phase_inverters])))
+# استخراج خيارات الإنفرترات المناسبة للحمل الحالي
+inv_combos = get_valid_inverter_combos(recommended_kw, target_phase)
 
-auto_power_kw = available_powers[-1]
-for pkw in available_powers:
-    if pkw >= recommended_kw:
-        auto_power_kw = pkw
-        break
-
-# ب. تحديد البطارية التلقائية الأقرب (تم رفع حد التجميع حتى 10 بطاريات للأحمال العالية)
+# تحديد البطارية التلقائية الأقرب
 all_bat_combos = []
 for bat in BATTERIES:
-    for qty in range(1, 11): # تم رفع النطاق لغاية 10 بطاريات
+    for qty in range(1, 11):
         total_cap = bat["capacity_kwh"] * qty
         all_bat_combos.append({
             "brand": bat["name"],
@@ -143,14 +164,11 @@ for bat in BATTERIES:
             "diff": total_cap - req_kwh
         })
 
-# تصفية التجميعات التي تغطي أو تتجاوز الحاجة
-valid_combos = [b for b in all_bat_combos if b["diff"] >= 0]
-
-if valid_combos:
-    valid_combos.sort(key=lambda x: x["diff"])
-    auto_bat_combo = valid_combos[0]
+valid_bat_combos = [b for b in all_bat_combos if b["diff"] >= 0]
+if valid_bat_combos:
+    valid_bat_combos.sort(key=lambda x: x["diff"])
+    auto_bat_combo = valid_bat_combos[0]
 else:
-    # في حال كان الحمل كبيراً جداً، اختر أكبر تجميعة متوفرة لتجنب خطأ الكود
     all_bat_combos.sort(key=lambda x: x["total_cap"], reverse=True)
     auto_bat_combo = all_bat_combos[0]
 
@@ -174,20 +192,20 @@ with col_p:
     else:
         final_panels = auto_panels
 
-# --- اختيار الإنفرتر والتعديل اليدوي ---
+# --- اختيار الإنفرترات بالربط المباشر مع مربع نص مخصص ---
 with col_i:
-    st.markdown("##### 🔌 الإنفرتر الهجين")
-    override_inv = st.checkbox("تعديل يدوي / اختيار قدرة أعلى")
-    
-    if override_inv:
-        selected_power_kw = st.selectbox("اختر قدرة الإنفرتر (kW):", options=available_powers, index=available_powers.index(auto_power_kw))
+    st.markdown("##### 🔌 الإنفرتر الهجين (خيارات تغطي الحمل)")
+    if inv_combos:
+        inv_labels = [c["label"] for c in inv_combos]
+        selected_inv_label = st.selectbox(
+            f"اختر تجميعة الأجهزة الحالية (المطلوب: {recommended_kw:.1f} kW):",
+            options=inv_labels,
+            index=0
+        )
+        chosen_inv_combo = inv_combos[inv_labels.index(selected_inv_label)]
     else:
-        selected_power_kw = auto_power_kw
-        
-    brands_for_power = [inv for inv in phase_inverters if inv["power_kw"] == selected_power_kw]
-    brand_options = [f"{inv['brand']} [{inv['model']}] - (${inv['price']})" for inv in brands_for_power]
-    selected_brand_str = st.selectbox(f"الماركة والموديل لـ ({selected_power_kw} kW):", options=brand_options)
-    chosen_inverter = brands_for_power[brand_options.index(selected_brand_str)]
+        st.error("لا تتوفر أجهزة كافية لتغطية هذا الحمل في القائمة.")
+        chosen_inv_combo = None
 
 # --- اختيار البطارية والتعديل اليدوي ---
 with col_b:
@@ -206,70 +224,71 @@ st.markdown("---")
 
 # 4. زر الحساب وإظهار النتائج
 if st.button("🚀 عرض نتائج المنظومة والتكلفة الإجمالية", type="primary", use_container_width=True):
-    
-    # حسابات السلاسل والتكاليف
-    max_string = chosen_panel["max_string_size"]
-    num_strings = math.ceil(final_panels / max_string)
-    
-    ac_board_cost = get_ac_board_price(day_amp)
-    panels_cost = final_panels * chosen_panel["price"]
-    dc_acc_cost = num_strings * DC_ACCESSORIES_PRICE_PER_STRING
-    inv_cost = chosen_inverter["price"]
-    bat_cost = chosen_bat["total_price"]
-    
-    total_cost = panels_cost + dc_acc_cost + inv_cost + bat_cost + ac_board_cost + EARTHING_SYSTEM_PRICE
-    
-    actual_charge_idc = chosen_inverter["max_charge_idc"] * 0.80
-    charge_power_w = actual_charge_idc * 51.5
-    charge_iac_210v = charge_power_w / (210.0 * 0.95)
-    
-    # ----------------------------------------------------
-    # التنبيهات والاقتراحات الفنية
-    # ----------------------------------------------------
-    st.subheader("💡 التنبيهات والاقتراحات الفنية")
-    
-    if chosen_inverter["power_kw"] < recommended_kw:
-        st.error(f"⚠️ **تنبيه خطأ/نقص قدرة:** قدرة الإنفرتر المختار ({chosen_inverter['power_kw']} kW) أقل من أحمال النهار المطلوبة مع هامش الأمان ({recommended_kw:.2f} kW). قد يتوقف الجهاز عند تشغيل كامل الأحمال.")
-    elif chosen_inverter["power_kw"] > recommended_kw * 1.3:
-        st.info(f"💡 **اقتراح توسعة:** الإنفرتر المختار ({chosen_inverter['power_kw']} kW) أكبر من احتياجك الحالي، وهو خيار ممتاز يتيح لك إضافة أحمال أو ألواح شمسية مستقبلاً.")
+    if chosen_inv_combo is None:
+        st.error("يرجى اختيار أجهزة إنفرتر مناسبة أولاً.")
     else:
-        st.success(f"✅ **الإنفرتر:** قدرة الإنفرتر متوافقة تماماً مع الأحمال المطلوبة.")
+        # حسابات السلاسل والتكاليف
+        max_string = chosen_panel["max_string_size"]
+        num_strings = math.ceil(final_panels / max_string)
         
-    actual_hours = chosen_bat["total_cap"] / (0.285 * night_amp) if night_amp > 0 else 0
-    actual_amp_available = chosen_bat["total_cap"] / (0.285 * night_hours) if night_hours > 0 else 0
-    
-    if chosen_bat["total_cap"] < req_kwh * 0.95:
-        st.warning(f"⚠️ **تنبيه سعة البطارية:** سعة البطارية المختارة ({chosen_bat['total_cap']} kWh) أقل من المطلوب ليلاً ({req_kwh:.2f} kWh). ستكفي لتشغيل {night_amp} أمبير لمدة **{actual_hours:.2f} ساعة فقط** بدلاً من {night_hours} ساعات.")
-    else:
-        st.success(f"✅ **البطارية:** سعة البطارية تغطي ساعات التشغيل الليلي المطلوب وزيادة.")
+        ac_board_cost = get_ac_board_price(day_amp)
+        panels_cost = final_panels * chosen_panel["price"]
+        dc_acc_cost = num_strings * DC_ACCESSORIES_PRICE_PER_STRING
+        inv_cost = chosen_inv_combo["total_price"]
+        bat_cost = chosen_bat["total_price"]
+        
+        total_cost = panels_cost + dc_acc_cost + inv_cost + bat_cost + ac_board_cost + EARTHING_SYSTEM_PRICE
+        
+        single_inv = chosen_inv_combo["inverter"]
+        inv_qty = chosen_inv_combo["qty"]
+        total_inv_kw = chosen_inv_combo["total_power"]
+        
+        actual_charge_idc = single_inv["max_charge_idc"] * 0.80 * inv_qty
+        charge_power_w = actual_charge_idc * 51.5
+        charge_iac_210v = charge_power_w / (210.0 * 0.95)
+        
+        # ----------------------------------------------------
+        # التنبيهات والاقتراحات الفنية
+        # ----------------------------------------------------
+        st.subheader("💡 التنبيهات والاقتراحات الفنية")
+        
+        st.success(f"✅ **الإنفرترات المحددة:** تم اختيار **({inv_qty})** جهاز من موديل **{single_inv['brand']}** بقدرة إجمالية **{total_inv_kw} kW** لتغطية الأحمال الحالية ({recommended_kw:.1f} kW).")
+            
+        actual_hours = chosen_bat["total_cap"] / (0.285 * night_amp) if night_amp > 0 else 0
+        actual_amp_available = chosen_bat["total_cap"] / (0.285 * night_hours) if night_hours > 0 else 0
+        
+        if chosen_bat["total_cap"] < req_kwh * 0.95:
+            st.warning(f"⚠️ **تنبيه سعة البطارية:** سعة البطارية المختارة ({chosen_bat['total_cap']} kWh) أقل من المطلوب ليلاً ({req_kwh:.2f} kWh). ستكفي لتشغيل {night_amp} أمبير لمدة **{actual_hours:.2f} ساعة فقط** بدلاً من {night_hours} ساعات.")
+        else:
+            st.success(f"✅ **البطارية:** سعة البطارية تغطي ساعات التشغيل الليلي المطلوب وزيادة.")
 
-    st.markdown("---")
+        st.markdown("---")
 
-    st.info(f"ℹ️ **ملاحظة حسابية (1):** كمية الأمبيرات التي يمكن أخذها من بنك البطاريات المختار خلال ({night_hours}) ساعات هي: **{actual_amp_available:.2f} أمبير**.")
-    st.info(f"ℹ️ **ملاحظة حسابية (2):** عدد الساعات التي يمكن خلالها استخدام بنك البطاريات المختار عند سحب ({night_amp}) أمبير هي: **{int(actual_hours)} ساعات و {int((actual_hours % 1) * 60)} دقيقة**.")
-    
-    st.warning(
-        f"🔌 **ملاحظة توصيل كابل الشحن من الشبكة الوطنية (210V):**\n\n"
-        f"عند ضبط تيار الشحن على النسبة الآمنة **80%** ({actual_charge_idc:.1f}A DC) لحماية الجهاز، "
-        f"يكون تيار الـ AC المسحوب من الوطنية حوالي **{charge_iac_210v:.1f} أمبير**.\n\n"
-        f"📌 **المقطع الأدنى المعتمد لكابل الـ AC الرباعي (4-Core):** **({chosen_inverter['cable_spec']})**."
-    )
+        st.info(f"ℹ️ **ملاحظة حسابية (1):** كمية الأمبيرات التي يمكن أخذها من بنك البطاريات المختار خلال ({night_hours}) ساعات هي: **{actual_amp_available:.2f} أمبير**.")
+        st.info(f"ℹ️ **ملاحظة حسابية (2):** عدد الساعات التي يمكن خلالها استخدام بنك البطاريات المختار عند سحب ({night_amp}) أمبير هي: **{int(actual_hours)} ساعات و {int((actual_hours % 1) * 60)} دقيقة**.")
+        
+        st.warning(
+            f"🔌 **ملاحظة توصيل كابل الشحن من الشبكة الوطنية (210V):**\n\n"
+            f"عند ضبط تيار الشحن على النسبة الآمنة **80%** للأجهزة ({actual_charge_idc:.1f}A DC إجمالي)، "
+            f"يكون تيار الـ AC الإجمالي المسحوب من الوطنية حوالي **{charge_iac_210v:.1f} أمبير**.\n\n"
+            f"📌 **المقطع الأدنى المعتمد لكابل الـ AC الرباعي (4-Core):** **({single_inv['cable_spec']}) لكل إنفرتر**."
+        )
 
-    st.markdown("---")
+        st.markdown("---")
 
-    # جدول المواد والتفاصيل
-    st.subheader("📋 جدول المواد والتفاصيل - شركة ركن التعمير")
-    
-    table_data = [
-        {"المكون / الملحق": "الألواح الشمسية", "المواصفات والوصف": f"لوح {chosen_panel['brand']} (شامل الهيكل والتركيب)", "الكمية": f"{final_panels} لوحاً", "سعر الوحدة ($)": f"${chosen_panel['price']}", "الإجمالي ($)": f"${panels_cost}"},
-        {"المكون / الملحق": "ملحقات الـ DC", "المواصفات والوصف": "أسلاك + قواطع + فيوزات + MC4 + أنابيب", "الكمية": f"{num_strings} سلاسل", "سعر الوحدة ($)": f"${DC_ACCESSORIES_PRICE_PER_STRING}", "الإجمالي ($)": f"${dc_acc_cost}"},
-        {"المكون / الملحق": "العاكس الهجين المختار", "المواصفات والوصف": f"{chosen_inverter['power_kw']} kW - {chosen_inverter['brand']} ({chosen_inverter['model']})", "الكمية": "1", "سعر الوحدة ($)": f"${inv_cost}", "الإجمالي ($)": f"${inv_cost}"},
-        {"المكون / الملحق": "بنك البطاريات", "المواصفات والوصف": f"{chosen_bat['brand']} ({chosen_bat['unit_cap']} kWh)", "الكمية": f"{chosen_bat['qty']}", "سعر الوحدة ($)": f"${chosen_bat['unit_price']}", "الإجمالي ($)": f"${bat_cost}"},
-        {"المكون / الملحق": "بورد الـ AC", "المواصفات والوصف": f"بورد حماية AC لغاية ({day_amp}A)", "الكمية": "1", "سعر الوحدة ($)": f"${ac_board_cost}", "الإجمالي ($)": f"${ac_board_cost}"},
-        {"المكون / الملحق": "منظومة التأريض", "المواصفات والوصف": "وتد نحاسي + أسلاك 30m + مادة تأريض + الحفر والربط", "الكمية": "1", "سعر الوحدة ($)": f"${EARTHING_SYSTEM_PRICE}", "الإجمالي ($)": f"${EARTHING_SYSTEM_PRICE}"},
-    ]
-    
-    st.table(table_data)
+        # جدول المواد والتفاصيل
+        st.subheader("📋 جدول المواد والتفاصيل - شركة ركن التعمير")
+        
+        table_data = [
+            {"المكون / الملحق": "الألواح الشمسية", "المواصفات والوصف": f"لوح {chosen_panel['brand']} (شامل الهيكل والتركيب)", "الكمية": f"{final_panels} لوحاً", "سعر الوحدة ($)": f"${chosen_panel['price']}", "الإجمالي ($)": f"${panels_cost}"},
+            {"المكون / الملحق": "ملحقات الـ DC", "المواصفات والوصف": "أسلاك + قواطع + فيوزات + MC4 + أنابيب", "الكمية": f"{num_strings} سلاسل", "سعر الوحدة ($)": f"${DC_ACCESSORIES_PRICE_PER_STRING}", "الإجمالي ($)": f"${dc_acc_cost}"},
+            {"المكون / الملحق": "العاكس الهجين", "المواصفات والوصف": f"{inv_qty}x {single_inv['brand']} ({single_inv['model']}) - [إجمالي {total_inv_kw} kW]", "الكمية": f"{inv_qty}", "سعر الوحدة ($)": f"${single_inv['price']}", "الإجمالي ($)": f"${inv_cost}"},
+            {"المكون / الملحق": "بنك البطاريات", "المواصفات والوصف": f"{chosen_bat['brand']} ({chosen_bat['unit_cap']} kWh)", "الكمية": f"{chosen_bat['qty']}", "سعر الوحدة ($)": f"${chosen_bat['unit_price']}", "الإجمالي ($)": f"${bat_cost}"},
+            {"المكون / الملحق": "بورد الـ AC", "المواصفات والوصف": f"بورد حماية وتوازي AC لغاية ({day_amp}A)", "الكمية": "1", "سعر الوحدة ($)": f"${ac_board_cost}", "الإجمالي ($)": f"${ac_board_cost}"},
+            {"المكون / الملحق": "منظومة التأريض", "المواصفات والوصف": "وتد نحاسي + أسلاك 30m + مادة تأريض + الحفر والربط", "الكمية": "1", "سعر الوحدة ($)": f"${EARTHING_SYSTEM_PRICE}", "الإجمالي ($)": f"${EARTHING_SYSTEM_PRICE}"},
+        ]
+        
+        st.table(table_data)
 
-    st.subheader("💰 الكلفة الإجمالية النهائية")
-    st.success(f"**الكلفة الإجمالية المباشرة للمشروع بناءً على اختيار الماركات: ${total_cost:,}**")
+        st.subheader("💰 الكلفة الإجمالية النهائية")
+        st.success(f"**الكلفة الإجمالية المباشرة للمشروع بناءً على اختيار الماركات: ${total_cost:,}**")
