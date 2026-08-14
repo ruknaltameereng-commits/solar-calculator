@@ -216,7 +216,7 @@ def calculate_panels_auto(day_current, required_battery_kwh, selected_panel):
 # ==========================================
 # 4. واجهة المستخدم (User Interface)
 # ==========================================
-st.title("☀️ RUKEN AL TAMWWE CALCULATER - شركة ركن التعمير")
+st.title("☀️ RUKEN AL TAMEER CALCULATER - شركة ركن التعمير")
 st.caption(" اعداد المهندس محمد النوري والمهندسة زينة ثامر برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
 
 st.markdown("---")
