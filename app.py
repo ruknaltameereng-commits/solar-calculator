@@ -24,30 +24,34 @@ DC_ACCESSORIES_PRICE_PER_STRING = 30
 EARTHING_SYSTEM_PRICE = 160
 
 INVERTER_BRANDS = [
-    {"brand": "Deye Off-Grid (6K)", "model": "SUN-6K-OG", "power_kw": 6.0, "price": 700, "phase": "single", "max_charge_idc": 120, "cable_spec": "4 x 4 mm²"},
-    {"brand": "Deye Hybrid (5K)", "model": "SUN-5K-SG04LP1-EU-SM2", "power_kw": 5.0, "price": 750, "phase": "single", "max_charge_idc": 120, "cable_spec": "4 x 4 mm²"},
-    {"brand": "Deye Hybrid (6K)", "model": "SUN-6K-SG04LP1-EU-SM2", "power_kw": 6.0, "price": 875, "phase": "single", "max_charge_idc": 135, "cable_spec": "4 x 6 mm²"},
-    {"brand": "Deye Hybrid (8K)", "model": "SUN-8K-SG05LP1-EU-SM2", "power_kw": 8.0, "price": 1225, "phase": "single", "max_charge_idc": 190, "cable_spec": "4 x 10 mm²"},
-    {"brand": "Deye Hybrid (12K)", "model": "SUN-12K-SG02LP1-EU-AM3", "power_kw": 12.0, "price": 1800, "phase": "single", "max_charge_idc": 250, "cable_spec": "4 x 16 mm²"},
-    {"brand": "Deye Hybrid (16K)", "model": "SUN-16K-SG01LP1-EU", "power_kw": 2000, "price": 2000, "phase": "single", "max_charge_idc": 290, "cable_spec": "4 x 16 mm²"},
+    # Hybrid Inverters
+    {"brand": "Deye Hybrid", "model": "SUN-5K-SG04LP1-EU-SM2", "power_kw": 5.0, "price": 750, "phase": "single", "type": "Hybrid", "max_charge_idc": 120, "cable_spec": "4 x 4 mm²"},
+    {"brand": "Deye Hybrid", "model": "SUN-6K-SG04LP1-EU-SM2", "power_kw": 6.0, "price": 875, "phase": "single", "type": "Hybrid", "max_charge_idc": 135, "cable_spec": "4 x 6 mm²"},
+    {"brand": "Deye Hybrid", "model": "SUN-8K-SG05LP1-EU-SM2", "power_kw": 8.0, "price": 1225, "phase": "single", "type": "Hybrid", "max_charge_idc": 190, "cable_spec": "4 x 10 mm²"},
+    {"brand": "Deye Hybrid", "model": "SUN-12K-SG02LP1-EU-AM3", "power_kw": 12.0, "price": 1800, "phase": "single", "type": "Hybrid", "max_charge_idc": 250, "cable_spec": "4 x 16 mm²"},
+    {"brand": "Deye Hybrid", "model": "SUN-16K-SG01LP1-EU", "power_kw": 16.0, "price": 2000, "phase": "single", "type": "Hybrid", "max_charge_idc": 290, "cable_spec": "4 x 16 mm²"},
 
-    {"brand": "Solis Hybrid (5K)", "model": "S6-EH1P5K-L-PLUS", "power_kw": 5.0, "price": 750, "phase": "single", "max_charge_idc": 112, "cable_spec": "4 x 4 mm²"},
-    {"brand": "Solis Hybrid (6K)", "model": "S6-EH1P6K-L-PLUS", "power_kw": 6.0, "price": 800, "phase": "single", "max_charge_idc": 135, "cable_spec": "4 x 6 mm²"},
-    {"brand": "Solis Hybrid (8K)", "model": "S6-EH1P8K-L-PLUS", "power_kw": 8.0, "price": 1300, "phase": "single", "max_charge_idc": 190, "cable_spec": "4 x 10 mm²"},
-    {"brand": "Solis Hybrid (10K)", "model": "S6-EH1P10K-L-PLUS", "power_kw": 10.0, "price": 1650, "phase": "single", "max_charge_idc": 210, "cable_spec": "4 x 10 mm²"},
-    {"brand": "Solis Hybrid (12K)", "model": "S6-EH1P12K03-NV-YD-L", "power_kw": 12.0, "price": 1900, "phase": "single", "max_charge_idc": 250, "cable_spec": "4 x 16 mm²"},
-    {"brand": "Solis Hybrid (16K)", "model": "S6-EH1P16K03-NV-YD-L", "power_kw": 16.0, "price": 2100, "phase": "single", "max_charge_idc": 290, "cable_spec": "4 x 16 mm²"},
+    {"brand": "Solis Hybrid", "model": "S6-EH1P5K-L-PLUS", "power_kw": 5.0, "price": 750, "phase": "single", "type": "Hybrid", "max_charge_idc": 112, "cable_spec": "4 x 4 mm²"},
+    {"brand": "Solis Hybrid", "model": "S6-EH1P6K-L-PLUS", "power_kw": 6.0, "price": 800, "phase": "single", "type": "Hybrid", "max_charge_idc": 135, "cable_spec": "4 x 6 mm²"},
+    {"brand": "Solis Hybrid", "model": "S6-EH1P8K-L-PLUS", "power_kw": 8.0, "price": 1300, "phase": "single", "type": "Hybrid", "max_charge_idc": 190, "cable_spec": "4 x 10 mm²"},
+    {"brand": "Solis Hybrid", "model": "S6-EH1P10K-L-PLUS", "power_kw": 10.0, "price": 1650, "phase": "single", "type": "Hybrid", "max_charge_idc": 210, "cable_spec": "4 x 10 mm²"},
+    {"brand": "Solis Hybrid", "model": "S6-EH1P12K03-NV-YD-L", "power_kw": 12.0, "price": 1900, "phase": "single", "type": "Hybrid", "max_charge_idc": 250, "cable_spec": "4 x 16 mm²"},
+    {"brand": "Solis Hybrid", "model": "S6-EH1P16K03-NV-YD-L", "power_kw": 16.0, "price": 2100, "phase": "single", "type": "Hybrid", "max_charge_idc": 290, "cable_spec": "4 x 16 mm²"},
 
-    {"brand": "SRNE Off-Grid (16K)", "model": "SRNE-16K-IP20", "power_kw": 16.0, "price": 1600, "phase": "single", "max_charge_idc": 200, "cable_spec": "4 x 10 mm²"},
+    # Off-Grid Inverters
+    {"brand": "Deye Off-Grid", "model": "SUN-6K-OG", "power_kw": 6.0, "price": 700, "phase": "single", "type": "Off-Grid", "max_charge_idc": 120, "cable_spec": "4 x 4 mm²"},
+    {"brand": "SRNE Off-Grid", "model": "SRNE-16K-IP20", "power_kw": 16.0, "price": 1600, "phase": "single", "type": "Off-Grid", "max_charge_idc": 200, "cable_spec": "4 x 10 mm²"},
+    {"brand": "Growatt Off-Grid", "model": "SPF 5000 ES", "power_kw": 5.0, "price": 650, "phase": "single", "type": "Off-Grid", "max_charge_idc": 100, "cable_spec": "4 x 4 mm²"},
 
-    {"brand": "Deye HV 3-Phase (30K)", "model": "SUN-30K-SG01HP3", "power_kw": 30.0, "price": 3800, "phase": "three", "max_charge_idc": 100, "cable_spec": "4 x 16 mm²"},
-    {"brand": "Deye HV 3-Phase (50K)", "model": "SUN-50K-SG01HP3", "power_kw": 50.0, "price": 5200, "phase": "three", "max_charge_idc": 150, "cable_spec": "4 x 25 mm²"}
+    # On-Grid Inverters
+    {"brand": "Solis On-Grid", "model": "S6-GR1P5K", "power_kw": 5.0, "price": 500, "phase": "single", "type": "On-Grid", "max_charge_idc": 0, "cable_spec": "4 x 4 mm²"},
+    {"brand": "Solis On-Grid", "model": "S6-GR1P10K", "power_kw": 10.0, "price": 950, "phase": "single", "type": "On-Grid", "max_charge_idc": 0, "cable_spec": "4 x 10 mm²"},
+    {"brand": "Deye On-Grid", "model": "SUN-16K-G04", "power_kw": 16.0, "price": 1300, "phase": "single", "type": "On-Grid", "max_charge_idc": 0, "cable_spec": "4 x 16 mm²"},
+
+    # High Voltage / 3-Phase Systems
+    {"brand": "Deye HV 3-Phase", "model": "SUN-30K-SG01HP3", "power_kw": 30.0, "price": 3800, "phase": "three", "type": "Hybrid", "max_charge_idc": 100, "cable_spec": "4 x 16 mm²"},
+    {"brand": "Deye HV 3-Phase", "model": "SUN-50K-SG01HP3", "power_kw": 50.0, "price": 5200, "phase": "three", "type": "Hybrid", "max_charge_idc": 150, "cable_spec": "4 x 25 mm²"}
 ]
-
-# تعديل القيمة الاسمية للـ Deye 16K الصحيحة
-for inv in INVERTER_BRANDS:
-    if inv["model"] == "SUN-16K-SG01LP1-EU":
-        inv["power_kw"] = 16.0
 
 BATTERIES = [
     {"name": "AOKLY جدارية / أرضية", "capacity_kwh": 10.24, "price": 1350},
@@ -92,34 +96,34 @@ def calculate_panels_auto(day_current, required_battery_kwh, selected_panel):
             return panels_per_string * num_strings, num_strings, panels_per_string
     return target_panels, 1, target_panels
 
-def get_valid_inverter_combos(req_kw, target_phase):
-    """استخراج جميع خيارات التوازي المناسبة للحمل مرتبة حسب الكفاءة والسعر"""
-    phase_inverters = [inv for inv in INVERTER_BRANDS if inv["phase"] == target_phase]
-    valid_combos = []
+def determine_inverter_size_and_qty(req_kw, target_phase, sys_type="Hybrid"):
+    """تحديد الحجم والعدد المناسب للإنفرتر استناداً لنوع النظام التلقائي أو المختار"""
+    filtered_inverters = [inv for inv in INVERTER_BRANDS if inv["phase"] == target_phase and inv["type"] == sys_type]
     
-    for inv in phase_inverters:
-        for qty in range(1, 5): # اختبار من 1 إلى 4 أجهزة على التوازي
+    # في حال عدم وجود موديل في النوع المختار نلجأ للـ Hybrid كاحتياطي
+    if not filtered_inverters:
+        filtered_inverters = [inv for inv in INVERTER_BRANDS if inv["phase"] == target_phase]
+
+    best_option = None
+    min_qty = 999
+    min_price = 999999
+    
+    for inv in filtered_inverters:
+        for qty in range(1, 5):
             total_power = inv["power_kw"] * qty
             if total_power >= req_kw:
-                combo_label = f"{qty}x {inv['brand']} [{inv['model']}] (إجمالي {total_power} kW) - (${inv['price'] * qty})"
-                valid_combos.append({
-                    "label": combo_label,
-                    "inverter": inv,
-                    "qty": qty,
-                    "total_power": total_power,
-                    "total_price": inv["price"] * qty,
-                    "excess": total_power - req_kw
-                })
-    
-    # الترتيب: أقل عدد أجهزة أولاً، ثم أقل سعر إجمالي
-    valid_combos.sort(key=lambda x: (x["qty"], x["total_price"], x["excess"]))
-    return valid_combos
+                if qty < min_qty or (qty == min_qty and inv["price"] * qty < min_price):
+                    min_qty = qty
+                    min_price = inv["price"] * qty
+                    best_option = {"target_power_kw": inv["power_kw"], "qty": qty}
+                    
+    return best_option
 
 # ==========================================
 # 4. واجهة المستخدم (User Interface)
 # ==========================================
-st.title("☀️ RUKEN AL TAMEER CALCULATOR - شركة ركن التعمير")
-st.caption(" اعداد المهندس محمد النوري والمهندسة زينة الحمداني برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
+st.title("☀️ حاسبة وتصميم المنظومات الشمسية - شركة ركن التعمير")
+st.caption("برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
 
 st.markdown("---")
 
@@ -146,9 +150,6 @@ recommended_kw = load_kw * 1.2
 req_kwh = night_amp * 0.285 * night_hours
 target_phase = "three" if is_hv_3ph else "single"
 
-# استخراج خيارات الإنفرترات المناسبة للحمل الحالي
-inv_combos = get_valid_inverter_combos(recommended_kw, target_phase)
-
 # تحديد البطارية التلقائية الأقرب
 all_bat_combos = []
 for bat in BATTERIES:
@@ -173,7 +174,7 @@ else:
     auto_bat_combo = all_bat_combos[0]
 
 # 3. قسم خيارات التعديل اليدوي المباشر
-st.subheader("⚙️ 2. تحديد الماركات وتخصيص الخيارات (يدوياً حسب الرغبة)")
+st.subheader("⚙️ 2. تحديد نوع المنظومة والماركات والمواصفات")
 
 col_p, col_i, col_b = st.columns(3)
 
@@ -192,40 +193,84 @@ with col_p:
     else:
         final_panels = auto_panels
 
-# --- اختيار الإنفرترات بالربط المباشر مع مربع نص مخصص ---
+# --- اختيار نوع المنظومة وماركة الإنفرتر ---
 with col_i:
-    st.markdown("##### 🔌 الإنفرتر الهجين (خيارات تغطي الحمل)")
-    if inv_combos:
-        inv_labels = [c["label"] for c in inv_combos]
-        selected_inv_label = st.selectbox(
-            f"اختر تجميعة الأجهزة الحالية (المطلوب: {recommended_kw:.1f} kW):",
-            options=inv_labels,
-            index=0
-        )
-        chosen_inv_combo = inv_combos[inv_labels.index(selected_inv_label)]
+    st.markdown("##### 🔌 الإنفرتر الهجين / العاكس")
+    
+    # خيار اختيار نوع المنظومة (الافتراضي هو Hybrid)
+    selected_system_type = st.selectbox(
+        "نوع نظام الإنفرتر:",
+        options=["Hybrid", "Off-Grid", "On-Grid"],
+        index=0  # افتراضياً Hybrid
+    )
+    
+    # حساب القدرة والعدد المناسب بناءً على النوع المختار
+    inv_spec = determine_inverter_size_and_qty(recommended_kw, target_phase, sys_type=selected_system_type)
+    
+    if inv_spec:
+        target_size = inv_spec["target_power_kw"]
+        inv_qty = inv_spec["qty"]
+        total_power = target_size * inv_qty
+        
+        st.info(f"📌 **قدرة الجهاز المناسب:** `{target_size} kW` | **العدد:** `{inv_qty}` أجهزة (إجمالي `{total_power} kW`)")
+        
+        # فلترة الأجهزة المتاحة بنفس الحجم والنوع المختار
+        matching_brands = [
+            inv for inv in INVERTER_BRANDS 
+            if inv["phase"] == target_phase and inv["power_kw"] == target_size and inv["type"] == selected_system_type
+        ]
+        
+        # في حال عدم وجود نفس النوع لهذا الحجم تحديداً، يتم استعراض الأجهزة المتاحة من الأنواع الأخرى
+        if not matching_brands:
+            matching_brands = [
+                inv for inv in INVERTER_BRANDS 
+                if inv["phase"] == target_phase and inv["power_kw"] == target_size
+            ]
+        
+        if matching_brands:
+            brand_options = [f"{inv['brand']} [{inv['model']}] - (${inv['price'] * inv_qty} إجمالي)" for inv in matching_brands]
+            selected_brand_str = st.selectbox(
+                f"اختر الماركة المتوفرة لحجم ({target_size} kW):",
+                options=brand_options
+            )
+            chosen_single_inv = matching_brands[brand_options.index(selected_brand_str)]
+            
+            chosen_inv_combo = {
+                "inverter": chosen_single_inv,
+                "qty": inv_qty,
+                "total_power": total_power,
+                "total_price": chosen_single_inv["price"] * inv_qty
+            }
+        else:
+            st.warning(f"لا تتوفر ماركات حالياً بحجم {target_size} kW لهذ النوع.")
+            chosen_inv_combo = None
     else:
-        st.error("لا تتوفر أجهزة كافية لتغطية هذا الحمل في القائمة.")
+        st.error("الحمل كبير جداً، يرجى مراجعة المهندس المختص.")
         chosen_inv_combo = None
 
 # --- اختيار البطارية والتعديل اليدوي ---
 with col_b:
     st.markdown("##### 🔋 بنك البطاريات")
-    override_bat = st.checkbox("تعديل يدوي / تغيير حجم البطارية")
     
-    bat_display_list = [f"{b['qty']}x {b['brand']} ({b['total_cap']} kWh) - (${b['total_price']})" for b in all_bat_combos]
-    
-    if override_bat:
-        selected_bat_str = st.selectbox("اختر البطارية يدوياً:", options=bat_display_list)
-        chosen_bat = all_bat_combos[bat_display_list.index(selected_bat_str)]
+    if selected_system_type == "On-Grid":
+        st.caption("ℹ️ نظام On-Grid لا يحتاج إلى بطاريات لتخزين الطاقة.")
+        chosen_bat = {"brand": "بدون بطاريات (نظام On-Grid)", "unit_cap": 0, "total_cap": 0, "qty": 0, "unit_price": 0, "total_price": 0}
     else:
-        chosen_bat = auto_bat_combo
+        override_bat = st.checkbox("تعديل يدوي / تغيير حجم البطارية")
+        bat_display_list = [f"{b['qty']}x {b['brand']} ({b['total_cap']} kWh) - (${b['total_price']})" for b in all_bat_combos]
+        
+        if override_bat:
+            selected_bat_str = st.selectbox("اختر البطارية يدوياً:", options=bat_display_list)
+            chosen_bat = all_bat_combos[bat_display_list.index(selected_bat_str)]
+        else:
+            chosen_bat = auto_bat_combo
 
 st.markdown("---")
 
 # 4. زر الحساب وإظهار النتائج
 if st.button("🚀 عرض نتائج المنظومة والتكلفة الإجمالية", type="primary", use_container_width=True):
     if chosen_inv_combo is None:
-        st.error("يرجى اختيار أجهزة إنفرتر مناسبة أولاً.")
+        st.error("يرجى اختيار ماركة إنفرتر متوفرة أولاً.")
     else:
         # حسابات السلاسل والتكاليف
         max_string = chosen_panel["max_string_size"]
@@ -245,34 +290,36 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
         
         actual_charge_idc = single_inv["max_charge_idc"] * 0.80 * inv_qty
         charge_power_w = actual_charge_idc * 51.5
-        charge_iac_210v = charge_power_w / (210.0 * 0.95)
+        charge_iac_210v = charge_power_w / (210.0 * 0.95) if charge_power_w > 0 else 0
         
         # ----------------------------------------------------
         # التنبيهات والاقتراحات الفنية
         # ----------------------------------------------------
         st.subheader("💡 التنبيهات والاقتراحات الفنية")
         
-        st.success(f"✅ **الإنفرترات المحددة:** تم اختيار **({inv_qty})** جهاز من موديل **{single_inv['brand']}** بقدرة إجمالية **{total_inv_kw} kW** لتغطية الأحمال الحالية ({recommended_kw:.1f} kW).")
+        st.success(f"✅ **الإنفرتر المختار:** تم اختيار **({inv_qty})** جهاز من نوع **[{single_inv['type']}]** ماركة **{single_inv['brand']}** موديل **[{single_inv['model']}]** بحجم **{single_inv['power_kw']} kW** لكل جهاز (إجمالي قدرة **{total_inv_kw} kW**).")
             
-        actual_hours = chosen_bat["total_cap"] / (0.285 * night_amp) if night_amp > 0 else 0
-        actual_amp_available = chosen_bat["total_cap"] / (0.285 * night_hours) if night_hours > 0 else 0
-        
-        if chosen_bat["total_cap"] < req_kwh * 0.95:
-            st.warning(f"⚠️ **تنبيه سعة البطارية:** سعة البطارية المختارة ({chosen_bat['total_cap']} kWh) أقل من المطلوب ليلاً ({req_kwh:.2f} kWh). ستكفي لتشغيل {night_amp} أمبير لمدة **{actual_hours:.2f} ساعة فقط** بدلاً من {night_hours} ساعات.")
-        else:
-            st.success(f"✅ **البطارية:** سعة البطارية تغطي ساعات التشغيل الليلي المطلوب وزيادة.")
+        if selected_system_type != "On-Grid":
+            actual_hours = chosen_bat["total_cap"] / (0.285 * night_amp) if night_amp > 0 else 0
+            actual_amp_available = chosen_bat["total_cap"] / (0.285 * night_hours) if night_hours > 0 else 0
+            
+            if chosen_bat["total_cap"] < req_kwh * 0.95:
+                st.warning(f"⚠️ **تنبيه سعة البطارية:** سعة البطارية المختارة ({chosen_bat['total_cap']} kWh) أقل من المطلوب ليلاً ({req_kwh:.2f} kWh). ستكفي لتشغيل {night_amp} أمبير لمدة **{actual_hours:.2f} ساعة فقط** بدلاً من {night_hours} ساعات.")
+            else:
+                st.success(f"✅ **البطارية:** سعة البطارية تغطي ساعات التشغيل الليلي المطلوب وزيادة.")
 
-        st.markdown("---")
+            st.markdown("---")
 
-        st.info(f"ℹ️ **ملاحظة حسابية (1):** كمية الأمبيرات التي يمكن أخذها من بنك البطاريات المختار خلال ({night_hours}) ساعات هي: **{actual_amp_available:.2f} أمبير**.")
-        st.info(f"ℹ️ **ملاحظة حسابية (2):** عدد الساعات التي يمكن خلالها استخدام بنك البطاريات المختار عند سحب ({night_amp}) أمبير هي: **{int(actual_hours)} ساعات و {int((actual_hours % 1) * 60)} دقيقة**.")
-        
-        st.warning(
-            f"🔌 **ملاحظة توصيل كابل الشحن من الشبكة الوطنية (210V):**\n\n"
-            f"عند ضبط تيار الشحن على النسبة الآمنة **80%** للأجهزة ({actual_charge_idc:.1f}A DC إجمالي)، "
-            f"يكون تيار الـ AC الإجمالي المسحوب من الوطنية حوالي **{charge_iac_210v:.1f} أمبير**.\n\n"
-            f"📌 **المقطع الأدنى المعتمد لكابل الـ AC الرباعي (4-Core):** **({single_inv['cable_spec']}) لكل إنفرتر**."
-        )
+            st.info(f"ℹ️ **ملاحظة حسابية (1):** كمية الأمبيرات التي يمكن أخذها من بنك البطاريات المختار خلال ({night_hours}) ساعات هي: **{actual_amp_available:.2f} أمبير**.")
+            st.info(f"ℹ️ **ملاحظة حسابية (2):** عدد الساعات التي يمكن خلالها استخدام بنك البطاريات المختار عند سحب ({night_amp}) أمبير هي: **{int(actual_hours)} ساعات و {int((actual_hours % 1) * 60)} دقيقة**.")
+            
+            if charge_iac_210v > 0:
+                st.warning(
+                    f"🔌 **ملاحظة توصيل كابل الشحن من الشبكة الوطنية (210V):**\n\n"
+                    f"عند ضبط تيار الشحن على النسبة الآمنة **80%** للأجهزة ({actual_charge_idc:.1f}A DC إجمالي)، "
+                    f"يكون تيار الـ AC الإجمالي المسحوب من الوطنية حوالي **{charge_iac_210v:.1f} أمبير**.\n\n"
+                    f"📌 **المقطع الأدنى المعتمد لكابل الـ AC الرباعي (4-Core):** **({single_inv['cable_spec']}) لكل إنفرتر**."
+                )
 
         st.markdown("---")
 
@@ -282,8 +329,8 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
         table_data = [
             {"المكون / الملحق": "الألواح الشمسية", "المواصفات والوصف": f"لوح {chosen_panel['brand']} (شامل الهيكل والتركيب)", "الكمية": f"{final_panels} لوحاً", "سعر الوحدة ($)": f"${chosen_panel['price']}", "الإجمالي ($)": f"${panels_cost}"},
             {"المكون / الملحق": "ملحقات الـ DC", "المواصفات والوصف": "أسلاك + قواطع + فيوزات + MC4 + أنابيب", "الكمية": f"{num_strings} سلاسل", "سعر الوحدة ($)": f"${DC_ACCESSORIES_PRICE_PER_STRING}", "الإجمالي ($)": f"${dc_acc_cost}"},
-            {"المكون / الملحق": "العاكس الهجين", "المواصفات والوصف": f"{inv_qty}x {single_inv['brand']} ({single_inv['model']}) - [إجمالي {total_inv_kw} kW]", "الكمية": f"{inv_qty}", "سعر الوحدة ($)": f"${single_inv['price']}", "الإجمالي ($)": f"${inv_cost}"},
-            {"المكون / الملحق": "بنك البطاريات", "المواصفات والوصف": f"{chosen_bat['brand']} ({chosen_bat['unit_cap']} kWh)", "الكمية": f"{chosen_bat['qty']}", "سعر الوحدة ($)": f"${chosen_bat['unit_price']}", "الإجمالي ($)": f"${bat_cost}"},
+            {"المكون / الملحق": "العاكس / الإنفرتر", "المواصفات والوصف": f"{inv_qty}x {single_inv['brand']} ({single_inv['model']}) - [{single_inv['type']}]", "الكمية": f"{inv_qty}", "سعر الوحدة ($)": f"${single_inv['price']}", "الإجمالي ($)": f"${inv_cost}"},
+            {"المكون / الملحق": "بنك البطاريات", "المواصفات والوصف": f"{chosen_bat['brand']} ({chosen_bat['unit_cap']} kWh)" if chosen_bat['qty'] > 0 else "بدون بطاريات", "الكمية": f"{chosen_bat['qty']}", "سعر الوحدة ($)": f"${chosen_bat['unit_price']}", "الإجمالي ($)": f"${bat_cost}"},
             {"المكون / الملحق": "بورد الـ AC", "المواصفات والوصف": f"بورد حماية وتوازي AC لغاية ({day_amp}A)", "الكمية": "1", "سعر الوحدة ($)": f"${ac_board_cost}", "الإجمالي ($)": f"${ac_board_cost}"},
             {"المكون / الملحق": "منظومة التأريض", "المواصفات والوصف": "وتد نحاسي + أسلاك 30m + مادة تأريض + الحفر والربط", "الكمية": "1", "سعر الوحدة ($)": f"${EARTHING_SYSTEM_PRICE}", "الإجمالي ($)": f"${EARTHING_SYSTEM_PRICE}"},
         ]
