@@ -55,8 +55,10 @@ INVERTER_BRANDS = [
 
 BATTERIES = [
     {"name": "AOKLY جدارية / أرضية", "capacity_kwh": 10.24, "price": 1350},
+    {"name": "BICODI Lithuim", "capacity_kwh": 10.24, "price": 1300},
     {"name": "BICODI Lithuim", "capacity_kwh": 12.0, "price": 1450},
     {"name": "AOKLY بعجلات", "capacity_kwh": 15.0, "price": 1700},
+    {"name": "BICODI Lithuim", "capacity_kwh": 15.0, "price": 1650},
     {"name": "BICODI Lithuim", "capacity_kwh": 16.1, "price": 1850},
     {"name": "BICODI Lithuim", "capacity_kwh": 17.66, "price": 2100},
 ]
@@ -97,10 +99,8 @@ def calculate_panels_auto(day_current, required_battery_kwh, selected_panel):
     return target_panels, 1, target_panels
 
 def determine_inverter_size_and_qty(req_kw, target_phase, sys_type="Hybrid"):
-    """تحديد الحجم والعدد المناسب للإنفرتر استناداً لنوع النظام التلقائي أو المختار"""
     filtered_inverters = [inv for inv in INVERTER_BRANDS if inv["phase"] == target_phase and inv["type"] == sys_type]
     
-    # في حال عدم وجود موديل في النوع المختار نلجأ للـ Hybrid كاحتياطي
     if not filtered_inverters:
         filtered_inverters = [inv for inv in INVERTER_BRANDS if inv["phase"] == target_phase]
 
@@ -118,6 +118,27 @@ def determine_inverter_size_and_qty(req_kw, target_phase, sys_type="Hybrid"):
                     best_option = {"target_power_kw": inv["power_kw"], "qty": qty}
                     
     return best_option
+
+def determine_battery_size_and_qty(req_kwh):
+    """تحديد الحجم المناسب للبطارية والعدد لتغطية أحمال الليل"""
+    all_combos = []
+    for bat in BATTERIES:
+        for qty in range(1, 6):
+            total_cap = bat["capacity_kwh"] * qty
+            diff = total_cap - req_kwh
+            if diff >= -0.5:  # تغطي المدى المطلوب
+                all_combos.append({
+                    "unit_cap": bat["capacity_kwh"],
+                    "qty": qty,
+                    "total_cap": round(total_cap, 2),
+                    "diff": diff
+                })
+    
+    if all_combos:
+        # اختيار الخيار الأقرب للطلب وبأقل عدد أجهزة
+        all_combos.sort(key=lambda x: (x["diff"], x["qty"]))
+        return all_combos[0]
+    return {"unit_cap": 15.0, "qty": 1, "total_cap": 15.0}
 
 # ==========================================
 # 4. واجهة المستخدم (User Interface)
@@ -150,29 +171,6 @@ recommended_kw = load_kw * 1.2
 req_kwh = night_amp * 0.285 * night_hours
 target_phase = "three" if is_hv_3ph else "single"
 
-# تحديد البطارية التلقائية الأقرب
-all_bat_combos = []
-for bat in BATTERIES:
-    for qty in range(1, 11):
-        total_cap = bat["capacity_kwh"] * qty
-        all_bat_combos.append({
-            "brand": bat["name"],
-            "unit_cap": bat["capacity_kwh"],
-            "total_cap": round(total_cap, 2),
-            "qty": qty,
-            "unit_price": bat["price"],
-            "total_price": bat["price"] * qty,
-            "diff": total_cap - req_kwh
-        })
-
-valid_bat_combos = [b for b in all_bat_combos if b["diff"] >= 0]
-if valid_bat_combos:
-    valid_bat_combos.sort(key=lambda x: x["diff"])
-    auto_bat_combo = valid_bat_combos[0]
-else:
-    all_bat_combos.sort(key=lambda x: x["total_cap"], reverse=True)
-    auto_bat_combo = all_bat_combos[0]
-
 # 3. قسم خيارات التعديل اليدوي المباشر
 st.subheader("⚙️ 2. تحديد نوع المنظومة والماركات والمواصفات")
 
@@ -197,14 +195,12 @@ with col_p:
 with col_i:
     st.markdown("##### 🔌 الإنفرتر الهجين / العاكس")
     
-    # خيار اختيار نوع المنظومة (الافتراضي هو Hybrid)
     selected_system_type = st.selectbox(
         "نوع نظام الإنفرتر:",
         options=["Hybrid", "Off-Grid", "On-Grid"],
-        index=0  # افتراضياً Hybrid
+        index=0
     )
     
-    # حساب القدرة والعدد المناسب بناءً على النوع المختار
     inv_spec = determine_inverter_size_and_qty(recommended_kw, target_phase, sys_type=selected_system_type)
     
     if inv_spec:
@@ -212,15 +208,13 @@ with col_i:
         inv_qty = inv_spec["qty"]
         total_power = target_size * inv_qty
         
-        st.info(f"📌 **قدرة الجهاز المناسب:** `{target_size} kW` | **العدد:** `{inv_qty}` أجهزة (إجمالي `{total_power} kW`)")
+        st.info(f"📌 **قدرة الجهاز المناسب:** `{target_size} kW` | **العدد:** `{inv_qty}` (إجمالي `{total_power} kW`)")
         
-        # فلترة الأجهزة المتاحة بنفس الحجم والنوع المختار
         matching_brands = [
             inv for inv in INVERTER_BRANDS 
             if inv["phase"] == target_phase and inv["power_kw"] == target_size and inv["type"] == selected_system_type
         ]
         
-        # في حال عدم وجود نفس النوع لهذا الحجم تحديداً، يتم استعراض الأجهزة المتاحة من الأنواع الأخرى
         if not matching_brands:
             matching_brands = [
                 inv for inv in INVERTER_BRANDS 
@@ -230,7 +224,7 @@ with col_i:
         if matching_brands:
             brand_options = [f"{inv['brand']} [{inv['model']}] - (${inv['price'] * inv_qty} إجمالي)" for inv in matching_brands]
             selected_brand_str = st.selectbox(
-                f"اختر الماركة المتوفرة لحجم ({target_size} kW):",
+                f"اختر الماركة المتوفرة بحجم ({target_size} kW):",
                 options=brand_options
             )
             chosen_single_inv = matching_brands[brand_options.index(selected_brand_str)]
@@ -242,13 +236,13 @@ with col_i:
                 "total_price": chosen_single_inv["price"] * inv_qty
             }
         else:
-            st.warning(f"لا تتوفر ماركات حالياً بحجم {target_size} kW لهذ النوع.")
+            st.warning(f"لا تتوفر ماركات حالياً بحجم {target_size} kW.")
             chosen_inv_combo = None
     else:
         st.error("الحمل كبير جداً، يرجى مراجعة المهندس المختص.")
         chosen_inv_combo = None
 
-# --- اختيار البطارية والتعديل اليدوي ---
+# --- اختيار البطارية المناسبة بناءً على الحمل وتحديد الماركة ---
 with col_b:
     st.markdown("##### 🔋 بنك البطاريات")
     
@@ -256,14 +250,36 @@ with col_b:
         st.caption("ℹ️ نظام On-Grid لا يحتاج إلى بطاريات لتخزين الطاقة.")
         chosen_bat = {"brand": "بدون بطاريات (نظام On-Grid)", "unit_cap": 0, "total_cap": 0, "qty": 0, "unit_price": 0, "total_price": 0}
     else:
-        override_bat = st.checkbox("تعديل يدوي / تغيير حجم البطارية")
-        bat_display_list = [f"{b['qty']}x {b['brand']} ({b['total_cap']} kWh) - (${b['total_price']})" for b in all_bat_combos]
+        # حساب السعة والعدد المناسب تلقائياً
+        bat_spec = determine_battery_size_and_qty(req_kwh)
+        target_bat_cap = bat_spec["unit_cap"]
+        bat_qty = bat_spec["qty"]
+        total_bat_cap = bat_spec["total_cap"]
         
-        if override_bat:
-            selected_bat_str = st.selectbox("اختر البطارية يدوياً:", options=bat_display_list)
-            chosen_bat = all_bat_combos[bat_display_list.index(selected_bat_str)]
-        else:
-            chosen_bat = auto_bat_combo
+        # إظهار حجم البطارية المناسب للمنظومة
+        st.info(f"📌 **حجم البطارية المناسب:** `{target_bat_cap} kWh` | **العدد:** `{bat_qty}` (إجمالي `{total_bat_cap} kWh`)")
+        
+        # استخراج الماركات المتوفرة لهذه السعة تحديداً
+        matching_batteries = [b for b in BATTERIES if b["capacity_kwh"] == target_bat_cap]
+        
+        if not matching_batteries:
+            matching_batteries = BATTERIES
+            
+        bat_brand_options = [f"{b['name']} ({b['capacity_kwh']} kWh) - (${b['price'] * bat_qty} إجمالي)" for b in matching_batteries]
+        selected_bat_brand_str = st.selectbox(
+            f"اختر الماركة المتوفرة بحجم ({target_bat_cap} kWh):",
+            options=bat_brand_options
+        )
+        chosen_single_bat = matching_batteries[bat_brand_options.index(selected_bat_brand_str)]
+        
+        chosen_bat = {
+            "brand": chosen_single_bat["name"],
+            "unit_cap": chosen_single_bat["capacity_kwh"],
+            "total_cap": total_bat_cap,
+            "qty": bat_qty,
+            "unit_price": chosen_single_bat["price"],
+            "total_price": chosen_single_bat["price"] * bat_qty
+        }
 
 st.markdown("---")
 
@@ -306,7 +322,7 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
             if chosen_bat["total_cap"] < req_kwh * 0.95:
                 st.warning(f"⚠️ **تنبيه سعة البطارية:** سعة البطارية المختارة ({chosen_bat['total_cap']} kWh) أقل من المطلوب ليلاً ({req_kwh:.2f} kWh). ستكفي لتشغيل {night_amp} أمبير لمدة **{actual_hours:.2f} ساعة فقط** بدلاً من {night_hours} ساعات.")
             else:
-                st.success(f"✅ **البطارية:** سعة البطارية تغطي ساعات التشغيل الليلي المطلوب وزيادة.")
+                st.success(f"✅ **البطارية المختارة:** تم اختيار **({chosen_bat['qty']})** بطارية ماركة **{chosen_bat['brand']}** بسعة **{chosen_bat['unit_cap']} kWh** لكل وحدة (إجمالي سعة **{chosen_bat['total_cap']} kWh**).")
 
             st.markdown("---")
 
