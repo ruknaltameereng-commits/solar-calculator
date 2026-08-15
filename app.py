@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# مفتاح تحكم لإظهار أو إخفاء المعادلات الحسابية (يمكن وضعه في الشريط الجانبي)
+# مفتاح تحكم لإظهار أو إخفاء المعادلات الحسابية
 with st.sidebar:
     st.header("⚙️ إعدادات العرض")
     show_formulas = st.toggle("إظهار المعادلات والآلية الحسابية", value=False)
@@ -314,22 +314,22 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
         # ====================================================
         if show_formulas:
             st.subheader("📐 المعادلات الرياضية والآلية الحسابية للمنظومة")
-            st.markdown(f"""
-            * **1. قدرة أحمال النهار المطلوبة:**
-              $$\text{{Load Power (kW)}} = \\frac{{\text{{Day Amp}} \\times 230}}{{1000}} = \\frac{{{day_amp} \\times 230}}{{1000}} = {load_kw:.2f}\\text{{ kW}}$$
+            day_p_val = day_amp * 230 * 1.3
+            chg_p_val = (req_kwh * 1000) / 9.0
             
-            * **2. السعة المطلوبة للبطاريات ليلاً:**
-              $$\text{{Battery kWh}} = \text{{Night Amp}} \\times 0.285 \\times \text{{Night Hours}} = {night_amp} \\times 0.285 \\times {night_hours} = {req_kwh:.2f}\\text{{ kWh}}$$
+            st.write(f"1. قدرة أحمال النهار المطلوبة: **{load_kw:.2f} kW**")
+            st.latex(r"\text{Load Power (kW)} = \frac{\text{Day Amp} \times 230}{1000}")
             
-            * **3. إجمالي الألواح الشمسية المطلوبة (نهار + شحن):**
-              $$\text{{Day Power (W)}} = \text{{Day Amp}} \\times 230 \\times 1.3 = {day_amp \\times 230 \\times 1.3:.0f}\\text{{ W}}$$
-              $$\text{{Charging Power (W)}} = \\frac{{\text{{Battery kWh}} \\times 1000}}{{9.0}} = \\frac{{{req_kwh:.2f} \\times 1000}}{{9.0}} = {((req_kwh * 1000) / 9.0):.0f}\\text{{ W}}$$
-              $$\text{{Total Panels}} = \\frac{{\text{{Day Power}} + \text{{Charging Power}}}}{{\text{{Panel Wattage}}}} = {final_panels}\\text{{ لوحاً}}$$
-
-            * **4. حساب تيار الشحن المسحوب من الشبكة الوطنية (AC):**
-              $$\text{{DC Charging Current (80% Safety)}} = {single_inv['max_charge_idc']} \\times 0.80 \\times {inv_qty} = {actual_charge_idc:.1f}\\text{{ A (DC)}}$$
-              $$\text{{AC Current at 210V}} = \\frac{{{actual_charge_idc:.1f} \\times 51.5}}{{210 \\times 0.95}} = {charge_iac_210v:.1f}\\text{{ A (AC)}}$$
-            """)
+            st.write(f"2. السعة المطلوبة للبطاريات ليلاً: **{req_kwh:.2f} kWh**")
+            st.latex(r"\text{Battery kWh} = \text{Night Amp} \times 0.285 \times \text{Night Hours}")
+            
+            st.write(f"3. إجمالي الألواح الشمسية المطلوبة: **{final_panels} لوحاً**")
+            st.latex(rf"\text{{Day Power}} = {day_amp} \times 230 \times 1.3 = {day_p_val:.0f}\text{{ W}}")
+            st.latex(rf"\text{{Charging Power}} = \frac{{{req_kwh:.2f} \times 1000}}{{9.0}} = {chg_p_val:.0f}\text{{ W}}")
+            
+            st.write(f"4. حساب تيار الشحن المسحوب من الوطنية (AC): **{charge_iac_210v:.1f} A**")
+            st.latex(rf"\text{{DC Charge Current (80\%)}} = {actual_charge_idc:.1f}\text{{ A (DC)}}")
+            st.latex(rf"\text{{AC Current at 210V}} = \frac{{{actual_charge_idc:.1f} \times 51.5}}{{210 \times 0.95}} = {charge_iac_210v:.1f}\text{{ A (AC)}}")
             st.markdown("---")
 
         # ----------------------------------------------------
