@@ -58,9 +58,8 @@ INVERTER_BRANDS = [
     {"brand": "Deye HV 3-Phase", "model": "SUN-50K-SG01HP3", "power_kw": 50.0, "price": 5200, "phase": "three", "type": "Hybrid", "max_charge_idc": 150, "cable_spec": "4 x 25 mm²"}
 ]
 
+# تم الإبقاء فقط على بطاريات أُوكلي (AOKLY) وبيكودي (BICODI)
 BATTERIES = [
-    {"name": "Felicity / AOKLY صغيرة", "capacity_kwh": 2.56, "price": 400},
-    {"name": "Felicity / BICODI متوسطة", "capacity_kwh": 5.12, "price": 750},
     {"name": "AOKLY جدارية / أرضية", "capacity_kwh": 10.24, "price": 1350},
     {"name": "BICODI Lithuim", "capacity_kwh": 10.24, "price": 1300},
     {"name": "BICODI Lithuim", "capacity_kwh": 12.0, "price": 1450},
@@ -144,13 +143,13 @@ def determine_battery_size_and_qty(req_kwh):
         # ترتيب حسب الأقرب للحاجة أولاً، ثم حسب التكلفة والعدد الأقل
         all_combos.sort(key=lambda x: (x["diff"], x["qty"]))
         return all_combos[0]
-    return {"unit_cap": 5.12, "qty": 1, "total_cap": 5.12}
+    return {"unit_cap": 10.24, "qty": 1, "total_cap": 10.24}
 
 # ==========================================
 # 4. واجهة المستخدم (User Interface)
 # ==========================================
 st.title("☀️ حاسبة وتصميم المنظومات الشمسية - شركة ركن التعمير")
-st.caption(" اعداد المهندس محمد النوري والمهندسة زينة ثامر برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
+st.caption(" اعداد المهندس محمد النوري والمهندسة زينة الحمداني برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
 
 st.markdown("---")
 
