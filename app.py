@@ -61,12 +61,12 @@ INVERTER_BRANDS = [
 # قاعدة بيانات البطاريات المعتمدة حصراً (AOKLY & BICODI)
 BATTERIES = [
     # AOKLY
-    {"name": "AOKLY", "type": "عادية", "capacity_kwh": 5.2, "price": 725},
+    {"name": "AOKLY", "type": "عادية", "capacity_kwh": 5.12, "price": 725},
     {"name": "AOKLY", "type": "جداري", "capacity_kwh": 10.24, "price": 1400},
     {"name": "AOKLY", "type": "أرضي", "capacity_kwh": 10.24, "price": 1420},
     {"name": "AOKLY", "type": "عادية", "capacity_kwh": 15.36, "price": 1650},
     # BICODI
-    {"name": "BICODI", "type": "عادية", "capacity_kwh": 5.2, "price": 700},
+    {"name": "BICODI", "type": "عادية", "capacity_kwh": 5.12, "price": 700},
     {"name": "BICODI", "type": "جداري", "capacity_kwh": 10.24, "price": 1400},
     {"name": "BICODI", "type": "أرضي", "capacity_kwh": 10.24, "price": 1420},
     {"name": "BICODI", "type": "عادية", "capacity_kwh": 11.78, "price": 1475},
@@ -155,7 +155,7 @@ def determine_battery_size_and_qty(req_kwh):
 # 4. واجهة المستخدم (User Interface)
 # ==========================================
 st.title("☀️ حاسبة وتصميم المنظومات الشمسية - شركة ركن التعمير")
-st.caption(" اعداد المهندس محمد النوري والمهندسة زينة الحمداني برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
+st.caption("برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
 
 st.markdown("---")
 
