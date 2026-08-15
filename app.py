@@ -2,13 +2,19 @@ import streamlit as st
 import math
 
 # ==========================================
-# 1. إعدادات الصفحة
+# 1. إعدادات الصفحة والقائمة الجانبية للتحكم
 # ==========================================
 st.set_page_config(
     page_title="شركة ركن التعمير - حاسبة المنظومات الشمسية",
     page_icon="☀️",
     layout="wide"
 )
+
+# مفتاح تحكم لإظهار أو إخفاء المعادلات الحسابية (يمكن وضعه في الشريط الجانبي)
+with st.sidebar:
+    st.header("⚙️ إعدادات العرض")
+    show_formulas = st.toggle("إظهار المعادلات والآلية الحسابية", value=False)
+    st.caption("تفعيل هذا الخيار سيظهر الشرح الرياضي والمعادلات المستخدمة في الحسابات.")
 
 # ==========================================
 # 2. البيانات الفنية الرسمية والأسعار
@@ -120,13 +126,12 @@ def determine_inverter_size_and_qty(req_kw, target_phase, sys_type="Hybrid"):
     return best_option
 
 def determine_battery_size_and_qty(req_kwh):
-    """تحديد الحجم المناسب للبطارية والعدد لتغطية أحمال الليل"""
     all_combos = []
     for bat in BATTERIES:
         for qty in range(1, 6):
             total_cap = bat["capacity_kwh"] * qty
             diff = total_cap - req_kwh
-            if diff >= -0.5:  # تغطي المدى المطلوب
+            if diff >= -0.5:
                 all_combos.append({
                     "unit_cap": bat["capacity_kwh"],
                     "qty": qty,
@@ -135,7 +140,6 @@ def determine_battery_size_and_qty(req_kwh):
                 })
     
     if all_combos:
-        # اختيار الخيار الأقرب للطلب وبأقل عدد أجهزة
         all_combos.sort(key=lambda x: (x["diff"], x["qty"]))
         return all_combos[0]
     return {"unit_cap": 15.0, "qty": 1, "total_cap": 15.0}
@@ -144,7 +148,7 @@ def determine_battery_size_and_qty(req_kwh):
 # 4. واجهة المستخدم (User Interface)
 # ==========================================
 st.title("☀️ حاسبة وتصميم المنظومات الشمسية - شركة ركن التعمير")
-st.caption("برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
+st.caption(" اعداد المهندس محمد النوري والمهندسة زينة الحمداني برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
 
 st.markdown("---")
 
@@ -250,16 +254,13 @@ with col_b:
         st.caption("ℹ️ نظام On-Grid لا يحتاج إلى بطاريات لتخزين الطاقة.")
         chosen_bat = {"brand": "بدون بطاريات (نظام On-Grid)", "unit_cap": 0, "total_cap": 0, "qty": 0, "unit_price": 0, "total_price": 0}
     else:
-        # حساب السعة والعدد المناسب تلقائياً
         bat_spec = determine_battery_size_and_qty(req_kwh)
         target_bat_cap = bat_spec["unit_cap"]
         bat_qty = bat_spec["qty"]
         total_bat_cap = bat_spec["total_cap"]
         
-        # إظهار حجم البطارية المناسب للمنظومة
         st.info(f"📌 **حجم البطارية المناسب:** `{target_bat_cap} kWh` | **العدد:** `{bat_qty}` (إجمالي `{total_bat_cap} kWh`)")
         
-        # استخراج الماركات المتوفرة لهذه السعة تحديداً
         matching_batteries = [b for b in BATTERIES if b["capacity_kwh"] == target_bat_cap]
         
         if not matching_batteries:
@@ -307,7 +308,30 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
         actual_charge_idc = single_inv["max_charge_idc"] * 0.80 * inv_qty
         charge_power_w = actual_charge_idc * 51.5
         charge_iac_210v = charge_power_w / (210.0 * 0.95) if charge_power_w > 0 else 0
-        
+
+        # ====================================================
+        # 📐 عرض المعادلات الرياضية (إذا تم تفعيل الخيار من قبلك)
+        # ====================================================
+        if show_formulas:
+            st.subheader("📐 المعادلات الرياضية والآلية الحسابية للمنظومة")
+            st.markdown(f"""
+            * **1. قدرة أحمال النهار المطلوبة:**
+              $$\text{{Load Power (kW)}} = \\frac{{\text{{Day Amp}} \\times 230}}{{1000}} = \\frac{{{day_amp} \\times 230}}{{1000}} = {load_kw:.2f}\\text{{ kW}}$$
+            
+            * **2. السعة المطلوبة للبطاريات ليلاً:**
+              $$\text{{Battery kWh}} = \text{{Night Amp}} \\times 0.285 \\times \text{{Night Hours}} = {night_amp} \\times 0.285 \\times {night_hours} = {req_kwh:.2f}\\text{{ kWh}}$$
+            
+            * **3. إجمالي الألواح الشمسية المطلوبة (نهار + شحن):**
+              $$\text{{Day Power (W)}} = \text{{Day Amp}} \\times 230 \\times 1.3 = {day_amp \\times 230 \\times 1.3:.0f}\\text{{ W}}$$
+              $$\text{{Charging Power (W)}} = \\frac{{\text{{Battery kWh}} \\times 1000}}{{9.0}} = \\frac{{{req_kwh:.2f} \\times 1000}}{{9.0}} = {((req_kwh * 1000) / 9.0):.0f}\\text{{ W}}$$
+              $$\text{{Total Panels}} = \\frac{{\text{{Day Power}} + \text{{Charging Power}}}}{{\text{{Panel Wattage}}}} = {final_panels}\\text{{ لوحاً}}$$
+
+            * **4. حساب تيار الشحن المسحوب من الشبكة الوطنية (AC):**
+              $$\text{{DC Charging Current (80% Safety)}} = {single_inv['max_charge_idc']} \\times 0.80 \\times {inv_qty} = {actual_charge_idc:.1f}\\text{{ A (DC)}}$$
+              $$\text{{AC Current at 210V}} = \\frac{{{actual_charge_idc:.1f} \\times 51.5}}{{210 \\times 0.95}} = {charge_iac_210v:.1f}\\text{{ A (AC)}}$$
+            """)
+            st.markdown("---")
+
         # ----------------------------------------------------
         # التنبيهات والاقتراحات الفنية
         # ----------------------------------------------------
