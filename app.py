@@ -22,8 +22,7 @@ with st.sidebar:
 
 PANEL_OPTIONS = [
     {"brand": "Jinko Solar 725W (Voc 49.12V)", "power_w": 725, "price": 175, "max_string_size": 9},
-    {"brand": "Longi Solar 640W (Voc 53.70V)", "power_w": 640, "price": 165, "max_string_size": 8},
-    {"brand": "لوح قياسي 640W", "power_w": 640, "price": 160, "max_string_size": 9}
+    {"brand": "Longi Solar 640W (Voc 53.70V)", "power_w": 640, "price": 165, "max_string_size": 8}
 ]
 
 DC_ACCESSORIES_PRICE_PER_STRING = 30
@@ -60,6 +59,8 @@ INVERTER_BRANDS = [
 ]
 
 BATTERIES = [
+    {"name": "Felicity / AOKLY صغيرة", "capacity_kwh": 2.56, "price": 400},
+    {"name": "Felicity / BICODI متوسطة", "capacity_kwh": 5.12, "price": 750},
     {"name": "AOKLY جدارية / أرضية", "capacity_kwh": 10.24, "price": 1350},
     {"name": "BICODI Lithuim", "capacity_kwh": 10.24, "price": 1300},
     {"name": "BICODI Lithuim", "capacity_kwh": 12.0, "price": 1450},
@@ -131,7 +132,7 @@ def determine_battery_size_and_qty(req_kwh):
         for qty in range(1, 6):
             total_cap = bat["capacity_kwh"] * qty
             diff = total_cap - req_kwh
-            if diff >= -0.5:
+            if diff >= -0.2:  # السماح بنسبة بسيطة جداً
                 all_combos.append({
                     "unit_cap": bat["capacity_kwh"],
                     "qty": qty,
@@ -140,15 +141,16 @@ def determine_battery_size_and_qty(req_kwh):
                 })
     
     if all_combos:
+        # ترتيب حسب الأقرب للحاجة أولاً، ثم حسب التكلفة والعدد الأقل
         all_combos.sort(key=lambda x: (x["diff"], x["qty"]))
         return all_combos[0]
-    return {"unit_cap": 15.0, "qty": 1, "total_cap": 15.0}
+    return {"unit_cap": 5.12, "qty": 1, "total_cap": 5.12}
 
 # ==========================================
 # 4. واجهة المستخدم (User Interface)
 # ==========================================
 st.title("☀️ حاسبة وتصميم المنظومات الشمسية - شركة ركن التعمير")
-st.caption(" اعداد المهندس محمد النوري والمهندسة زينة الحمداني برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
+st.caption(" اعداد المهندس محمد النوري والمهندسة زينة ثامر برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
 
 st.markdown("---")
 
