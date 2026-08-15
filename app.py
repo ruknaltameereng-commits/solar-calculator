@@ -58,15 +58,20 @@ INVERTER_BRANDS = [
     {"brand": "Deye HV 3-Phase", "model": "SUN-50K-SG01HP3", "power_kw": 50.0, "price": 5200, "phase": "three", "type": "Hybrid", "max_charge_idc": 150, "cable_spec": "4 x 25 mm²"}
 ]
 
-# تم الإبقاء فقط على بطاريات أُوكلي (AOKLY) وبيكودي (BICODI)
+# قاعدة بيانات البطاريات المعتمدة حصراً (AOKLY & BICODI)
 BATTERIES = [
-    {"name": "AOKLY جدارية / أرضية", "capacity_kwh": 10.24, "price": 1350},
-    {"name": "BICODI Lithuim", "capacity_kwh": 10.24, "price": 1300},
-    {"name": "BICODI Lithuim", "capacity_kwh": 12.0, "price": 1450},
-    {"name": "AOKLY بعجلات", "capacity_kwh": 15.0, "price": 1700},
-    {"name": "BICODI Lithuim", "capacity_kwh": 15.0, "price": 1650},
-    {"name": "BICODI Lithuim", "capacity_kwh": 16.1, "price": 1850},
-    {"name": "BICODI Lithuim", "capacity_kwh": 17.66, "price": 2100},
+    # AOKLY
+    {"name": "AOKLY", "type": "عادية", "capacity_kwh": 5.2, "price": 725},
+    {"name": "AOKLY", "type": "جداري", "capacity_kwh": 10.24, "price": 1400},
+    {"name": "AOKLY", "type": "أرضي", "capacity_kwh": 10.24, "price": 1420},
+    {"name": "AOKLY", "type": "عادية", "capacity_kwh": 15.36, "price": 1650},
+    # BICODI
+    {"name": "BICODI", "type": "عادية", "capacity_kwh": 5.2, "price": 700},
+    {"name": "BICODI", "type": "جداري", "capacity_kwh": 10.24, "price": 1400},
+    {"name": "BICODI", "type": "أرضي", "capacity_kwh": 10.24, "price": 1420},
+    {"name": "BICODI", "type": "عادية", "capacity_kwh": 11.78, "price": 1475},
+    {"name": "BICODI", "type": "عادية", "capacity_kwh": 16.1, "price": 1800},
+    {"name": "BICODI", "type": "عادية", "capacity_kwh": 17.66, "price": 1950},
 ]
 
 # ==========================================
@@ -133,6 +138,7 @@ def determine_battery_size_and_qty(req_kwh):
             diff = total_cap - req_kwh
             if diff >= -0.2:  # السماح بنسبة بسيطة جداً
                 all_combos.append({
+                    "bat": bat,
                     "unit_cap": bat["capacity_kwh"],
                     "qty": qty,
                     "total_cap": round(total_cap, 2),
@@ -143,7 +149,7 @@ def determine_battery_size_and_qty(req_kwh):
         # ترتيب حسب الأقرب للحاجة أولاً، ثم حسب التكلفة والعدد الأقل
         all_combos.sort(key=lambda x: (x["diff"], x["qty"]))
         return all_combos[0]
-    return {"unit_cap": 10.24, "qty": 1, "total_cap": 10.24}
+    return {"bat": BATTERIES[1], "unit_cap": 10.24, "qty": 1, "total_cap": 10.24}
 
 # ==========================================
 # 4. واجهة المستخدم (User Interface)
@@ -262,22 +268,29 @@ with col_b:
         
         st.info(f"📌 **حجم البطارية المناسب:** `{target_bat_cap} kWh` | **العدد:** `{bat_qty}` (إجمالي `{total_bat_cap} kWh`)")
         
-        matching_batteries = [b for b in BATTERIES if b["capacity_kwh"] == target_bat_cap]
+        bat_brand_options = [
+            f"{b['name']} ({b['capacity_kwh']} kWh{' - ' + b['type'] if b['type'] != 'عادية' else ''}) - (${b['price'] * bat_qty} إجمالي)" 
+            for b in BATTERIES
+        ]
         
-        if not matching_batteries:
-            matching_batteries = BATTERIES
-            
-        bat_brand_options = [f"{b['name']} ({b['capacity_kwh']} kWh) - (${b['price'] * bat_qty} إجمالي)" for b in matching_batteries]
+        # البحث عن الفهرس الافتراضي الأقرب
+        default_index = 0
+        for idx, b in enumerate(BATTERIES):
+            if b["capacity_kwh"] == target_bat_cap:
+                default_index = idx
+                break
+
         selected_bat_brand_str = st.selectbox(
-            f"اختر الماركة المتوفرة بحجم ({target_bat_cap} kWh):",
-            options=bat_brand_options
+            "اختر البطارية المناسبة:",
+            options=bat_brand_options,
+            index=default_index
         )
-        chosen_single_bat = matching_batteries[bat_brand_options.index(selected_bat_brand_str)]
+        chosen_single_bat = BATTERIES[bat_brand_options.index(selected_bat_brand_str)]
         
         chosen_bat = {
-            "brand": chosen_single_bat["name"],
+            "brand": f"{chosen_single_bat['name']} ({chosen_single_bat['type']})" if chosen_single_bat['type'] != 'عادية' else chosen_single_bat['name'],
             "unit_cap": chosen_single_bat["capacity_kwh"],
-            "total_cap": total_bat_cap,
+            "total_cap": chosen_single_bat["capacity_kwh"] * bat_qty,
             "qty": bat_qty,
             "unit_price": chosen_single_bat["price"],
             "total_price": chosen_single_bat["price"] * bat_qty
