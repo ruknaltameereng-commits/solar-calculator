@@ -2,13 +2,19 @@ import streamlit as st
 import math
 
 # ==========================================
-# 1. إعدادات الصفحة والقائمة الجانبية للتحكم
+# 1. إعدادات الصفحة والشعار والقائمة الجانبية
 # ==========================================
 st.set_page_config(
     page_title="شركة ركن التعمير - حاسبة المنظومات الشمسية",
-    page_icon="☀️",
+    page_icon="logo.png",
     layout="wide"
 )
+
+# عرض الشعار في القائمة الجانبية
+try:
+    st.sidebar.image("logo.png", use_container_width=True)
+except Exception:
+    pass
 
 # مفتاح تحكم لإظهار أو إخفاء المعادلات الحسابية
 with st.sidebar:
@@ -17,7 +23,33 @@ with st.sidebar:
     st.caption("تفعيل هذا الخيار سيظهر الشرح الرياضي والمعادلات المستخدمة في الحسابات.")
 
 # ==========================================
-# 2. البيانات الفنية الرسمية والأسعار
+# 2. الهيدر الرئيسي (الشعار + العنوان + صورة واجهة الشركة)
+# ==========================================
+col_logo, col_title = st.columns([1, 5])
+
+with col_logo:
+    try:
+        st.image("logo.png", width=120)
+    except Exception:
+        st.write("☀️")
+
+with col_title:
+    st.title("☀️ RUKEN AL TAMEER SOLAR CALCULATOR")
+    st.subheader("اعداد المهندس محمد النوري والمهندسة زينة الحمداني")
+
+# عرض صورة واجهة الشركة
+try:
+    st.image("company", use_container_width=True, caption="شركة ركن التعمير للحلول والمنظومات الشمسية")
+except Exception:
+    try:
+        st.image("company.png", use_container_width=True, caption="شركة ركن التعمير للحلول والمنظومات الشمسية")
+    except Exception:
+        pass
+
+st.markdown("---")
+
+# ==========================================
+# 3. البيانات الفنية الرسمية والأسعار
 # ==========================================
 
 PANEL_OPTIONS = [
@@ -75,7 +107,7 @@ BATTERIES = [
 ]
 
 # ==========================================
-# 3. الدوال الحسابية
+# 4. الدوال الحسابية
 # ==========================================
 def get_ac_board_price(current_amp):
     if 8 <= current_amp <= 15:
@@ -136,7 +168,7 @@ def determine_battery_size_and_qty(req_kwh):
         for qty in range(1, 6):
             total_cap = bat["capacity_kwh"] * qty
             diff = total_cap - req_kwh
-            if diff >= -0.2:  # السماح بنسبة بسيطة جداً
+            if diff >= -0.2:
                 all_combos.append({
                     "bat": bat,
                     "unit_cap": bat["capacity_kwh"],
@@ -146,18 +178,13 @@ def determine_battery_size_and_qty(req_kwh):
                 })
     
     if all_combos:
-        # ترتيب حسب الأقرب للحاجة أولاً، ثم حسب التكلفة والعدد الأقل
         all_combos.sort(key=lambda x: (x["diff"], x["qty"]))
         return all_combos[0]
     return {"bat": BATTERIES[1], "unit_cap": 10.24, "qty": 1, "total_cap": 10.24}
 
 # ==========================================
-# 4. واجهة المستخدم (User Interface)
+# 5. واجهة المستخدم (User Interface)
 # ==========================================
-st.title("☀️ RUKEN AL TAMEER SOLAR CALCULATOR - شركة ركن التعمير")
-st.caption(" اعداد المهندس محمد النوري والمهندسة زينة الحمداني برمجة وتصميم هندسي مخصص للحسابات الدقيقة واختيار الأجهزة والتعديل التفاعلي")
-
-st.markdown("---")
 
 # 1. إدخال أحمال المنظومة
 st.subheader("📥 1. إدخال أحمال المنظومة")
@@ -273,7 +300,6 @@ with col_b:
             for b in BATTERIES
         ]
         
-        # البحث عن الفهرس الافتراضي الأقرب
         default_index = 0
         for idx, b in enumerate(BATTERIES):
             if b["capacity_kwh"] == target_bat_cap:
@@ -303,7 +329,6 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
     if chosen_inv_combo is None:
         st.error("يرجى اختيار ماركة إنفرتر متوفرة أولاً.")
     else:
-        # حسابات السلاسل والتكاليف
         max_string = chosen_panel["max_string_size"]
         num_strings = math.ceil(final_panels / max_string)
         
@@ -324,7 +349,7 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
         charge_iac_210v = charge_power_w / (210.0 * 0.95) if charge_power_w > 0 else 0
 
         # ====================================================
-        # 📐 عرض المعادلات الرياضية (إذا تم تفعيل الخيار من قبلك)
+        # 📐 عرض المعادلات الرياضية
         # ====================================================
         if show_formulas:
             st.subheader("📐 المعادلات الرياضية والآلية الحسابية للمنظومة")
