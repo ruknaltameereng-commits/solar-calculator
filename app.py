@@ -34,8 +34,8 @@ with col_logo:
         st.write("☀️")
 
 with col_title:
-    st.title("☀️ RUKEN AL TAMEER SOLAR CALCULATOR")
-    st.subheader("اعداد المهندس محمد النوري والمهندسة زينة الحمداني")
+    st.title("☀️ حاسبة وتصميم المنظومات الشمسية")
+    st.subheader("شركة ركن التعمير للتجارة والمقاولات العامة / الموصل")
 
 # عرض صورة واجهة الشركة
 try:
@@ -186,20 +186,25 @@ def determine_battery_size_and_qty(req_kwh):
 # 5. واجهة المستخدم (User Interface)
 # ==========================================
 
-# 1. إدخال أحمال المنظومة
+# 1. إدخال أحمال المنظومة مع دعم الضغط على Enter
 st.subheader("📥 1. إدخال أحمال المنظومة")
-col1, col2, col3 = st.columns(3)
 
-with col1:
-    day_amp = st.number_input("أمبير النهار (ن)", min_value=1, max_value=300, value=100, step=1)
+with st.form(key="load_form"):
+    col1, col2, col3 = st.columns(3)
 
-with col2:
-    night_amp = st.number_input("أمبير الليل (ل)", min_value=1, max_value=300, value=60, step=1)
+    with col1:
+        day_amp = st.number_input("أمبير النهار (ن)", min_value=1, max_value=300, value=100, step=1)
 
-with col3:
-    night_hours = st.number_input("ساعات التشغيل الليلي (س)", min_value=1, max_value=24, value=4, step=1)
+    with col2:
+        night_amp = st.number_input("أمبير الليل (ل)", min_value=1, max_value=300, value=60, step=1)
 
-is_hv_3ph = st.checkbox("تطبيق نظام HV-3PH (ثلاثي الأطوار / High Voltage)", value=False)
+    with col3:
+        night_hours = st.number_input("ساعات التشغيل الليلي (س)", min_value=1, max_value=24, value=4, step=1)
+
+    is_hv_3ph = st.checkbox("تطبيق نظام HV-3PH (ثلاثي الأطوار / High Voltage)", value=False)
+    
+    # زر إرسال لتحفيز الضغط على Enter
+    submit_load = st.form_submit_button("تحديث الحسابات ↵ (أو اضغط Enter)", use_container_width=True)
 
 st.markdown("---")
 
@@ -280,7 +285,7 @@ with col_i:
         st.error("الحمل كبير جداً، يرجى مراجعة المهندس المختص.")
         chosen_inv_combo = None
 
-# --- اختيار البطارية المناسبة بناءً على الحمل وتحديد الماركة ---
+# --- اختيار البطارية وإعادة الحساب فوراً بناءً على اختيارك ---
 with col_b:
     st.markdown("##### 🔋 بنك البطاريات")
     
@@ -290,13 +295,9 @@ with col_b:
     else:
         bat_spec = determine_battery_size_and_qty(req_kwh)
         target_bat_cap = bat_spec["unit_cap"]
-        bat_qty = bat_spec["qty"]
-        total_bat_cap = bat_spec["total_cap"]
-        
-        st.info(f"📌 **حجم البطارية المناسب:** `{target_bat_cap} kWh` | **العدد:** `{bat_qty}` (إجمالي `{total_bat_cap} kWh`)")
         
         bat_brand_options = [
-            f"{b['name']} ({b['capacity_kwh']} kWh{' - ' + b['type'] if b['type'] != 'عادية' else ''}) - (${b['price'] * bat_qty} إجمالي)" 
+            f"{b['name']} ({b['capacity_kwh']} kWh{' - ' + b['type'] if b['type'] != 'عادية' else ''}) - (${b['price']})" 
             for b in BATTERIES
         ]
         
@@ -307,16 +308,26 @@ with col_b:
                 break
 
         selected_bat_brand_str = st.selectbox(
-            "اختر البطارية المناسبة:",
+            "اختر نوع/قدرة البطارية المطلوبة:",
             options=bat_brand_options,
             index=default_index
         )
         chosen_single_bat = BATTERIES[bat_brand_options.index(selected_bat_brand_str)]
         
+        # إعادة حساب العدد المطلوب للسعة المحددة يدوياً
+        selected_unit_cap = chosen_single_bat["capacity_kwh"]
+        calculated_bat_qty = math.ceil(req_kwh / selected_unit_cap) if selected_unit_cap > 0 else 1
+        
+        # إتاحة تعديل العدد يدوياً إذا رغب المستخدم
+        bat_qty = st.number_input("عدد البطاريات المطلوب:", min_value=1, max_value=10, value=calculated_bat_qty, step=1)
+        total_selected_bat_cap = round(selected_unit_cap * bat_qty, 2)
+        
+        st.info(f"📌 **السعة الإجمالية المختارة:** `{total_selected_bat_cap} kWh` | **المطلوب للشبكة:** `{req_kwh:.2f} kWh`")
+
         chosen_bat = {
             "brand": f"{chosen_single_bat['name']} ({chosen_single_bat['type']})" if chosen_single_bat['type'] != 'عادية' else chosen_single_bat['name'],
             "unit_cap": chosen_single_bat["capacity_kwh"],
-            "total_cap": chosen_single_bat["capacity_kwh"] * bat_qty,
+            "total_cap": total_selected_bat_cap,
             "qty": bat_qty,
             "unit_price": chosen_single_bat["price"],
             "total_price": chosen_single_bat["price"] * bat_qty
@@ -324,22 +335,34 @@ with col_b:
 
 st.markdown("---")
 
-# 4. زر الحساب وإظهار النتائج
-if st.button("🚀 عرض نتائج المنظومة والتكلفة الإجمالية", type="primary", use_container_width=True):
+# ==========================================
+# 6. حساب الكلفة والنتائج مسبقاً لعرض السعر فوراً
+# ==========================================
+if chosen_inv_combo:
+    max_string = chosen_panel["max_string_size"]
+    num_strings = math.ceil(final_panels / max_string)
+    
+    ac_board_cost = get_ac_board_price(day_amp)
+    panels_cost = final_panels * chosen_panel["price"]
+    dc_acc_cost = num_strings * DC_ACCESSORIES_PRICE_PER_STRING
+    inv_cost = chosen_inv_combo["total_price"]
+    bat_cost = chosen_bat["total_price"]
+    
+    total_cost = panels_cost + dc_acc_cost + inv_cost + bat_cost + ac_board_cost + EARTHING_SYSTEM_PRICE
+
+    # التعديل الخامس: عرض السعر الإجمالي التقديري فوراً قبل النقر على الزر
+    st.subheader("💰 التكلفة التقديرية المباشرة للمنظومة")
+    st.success(f"**إجمالي التكلفة المتوقعة بناءً على الخيارات الحالية: ${total_cost:,}**")
+
+# ==========================================
+# 7. زر عرض التفاصيل والنتائج الشاملة
+# ==========================================
+show_results = st.button("🚀 عرض جدول التفاصيل والتنبيهات الفنية ↵ (أو اضغط Enter)", type="primary", use_container_width=True)
+
+if show_results or submit_load:
     if chosen_inv_combo is None:
         st.error("يرجى اختيار ماركة إنفرتر متوفرة أولاً.")
     else:
-        max_string = chosen_panel["max_string_size"]
-        num_strings = math.ceil(final_panels / max_string)
-        
-        ac_board_cost = get_ac_board_price(day_amp)
-        panels_cost = final_panels * chosen_panel["price"]
-        dc_acc_cost = num_strings * DC_ACCESSORIES_PRICE_PER_STRING
-        inv_cost = chosen_inv_combo["total_price"]
-        bat_cost = chosen_bat["total_price"]
-        
-        total_cost = panels_cost + dc_acc_cost + inv_cost + bat_cost + ac_board_cost + EARTHING_SYSTEM_PRICE
-        
         single_inv = chosen_inv_combo["inverter"]
         inv_qty = chosen_inv_combo["qty"]
         total_inv_kw = chosen_inv_combo["total_power"]
@@ -368,36 +391,34 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
             
             st.write(f"4. حساب تيار الشحن المسحوب من الوطنية (AC): **{charge_iac_210v:.1f} A**")
             st.latex(rf"\text{{DC Charge Current (80\%)}} = {actual_charge_idc:.1f}\text{{ A (DC)}}")
-            st.latex(rf"\text{{AC Current at 210V}} = \frac{{{actual_charge_idc:.1f} \times 51.5}}{{210 \times 0.95}} = {charge_iac_210v:.1f}\text{{ A (AC)}}")
+            st.latex(rf"\text{{AC Current}} = \frac{{{actual_charge_idc:.1f} \times 51.5}}{{210 \times 0.95}} = {charge_iac_210v:.1f}\text{{ A (AC)}}")
             st.markdown("---")
 
         # ----------------------------------------------------
-        # التنبيهات والاقتراحات الفنية
+        # التعديل الثاني والثالث والرابع: التنبيهات والتوصيات الفنية المختصرة
         # ----------------------------------------------------
-        st.subheader("💡 التنبيهات والاقتراحات الفنية")
+        st.subheader("💡 التنبيهات والتوصيات الفنية")
         
-        st.success(f"✅ **الإنفرتر المختار:** تم اختيار **({inv_qty})** جهاز من نوع **[{single_inv['type']}]** ماركة **{single_inv['brand']}** موديل **[{single_inv['model']}]** بحجم **{single_inv['power_kw']} kW** لكل جهاز (إجمالي قدرة **{total_inv_kw} kW**).")
+        st.success(f"✅ **الإنفرتر المختار:** ({inv_qty}) جهاز [{single_inv['type']}] ماركة {single_inv['brand']} موديل [{single_inv['model']}] بقدرة {single_inv['power_kw']} kW (الإجمالي: {total_inv_kw} kW).")
             
         if selected_system_type != "On-Grid":
             actual_hours = chosen_bat["total_cap"] / (0.285 * night_amp) if night_amp > 0 else 0
             actual_amp_available = chosen_bat["total_cap"] / (0.285 * night_hours) if night_hours > 0 else 0
             
             if chosen_bat["total_cap"] < req_kwh * 0.95:
-                st.warning(f"⚠️ **تنبيه سعة البطارية:** سعة البطارية المختارة ({chosen_bat['total_cap']} kWh) أقل من المطلوب ليلاً ({req_kwh:.2f} kWh). ستكفي لتشغيل {night_amp} أمبير لمدة **{actual_hours:.2f} ساعة فقط** بدلاً من {night_hours} ساعات.")
+                st.warning(f"⚠️ **سعة البطارية أقل من المطلوب:** السعة المختارة ({chosen_bat['total_cap']} kWh) تكفي لتشغيل {night_amp} أمبير لمدة **{actual_hours:.1f} ساعة** فقط (المطلوب {night_hours} ساعات).")
             else:
-                st.success(f"✅ **البطارية المختارة:** تم اختيار **({chosen_bat['qty']})** بطارية ماركة **{chosen_bat['brand']}** بسعة **{chosen_bat['unit_cap']} kWh** لكل وحدة (إجمالي سعة **{chosen_bat['total_cap']} kWh**).")
+                st.success(f"✅ **البطارية المختارة:** ({chosen_bat['qty']}) بطارية {chosen_bat['brand']} بسعة {chosen_bat['unit_cap']} kWh (الإجمالي: {chosen_bat['total_cap']} kWh).")
 
-            st.markdown("---")
-
-            st.info(f"ℹ️ **ملاحظة حسابية (1):** كمية الأمبيرات التي يمكن أخذها من بنك البطاريات المختار خلال ({night_hours}) ساعات هي: **{actual_amp_available:.2f} أمبير**.")
-            st.info(f"ℹ️ **ملاحظة حسابية (2):** عدد الساعات التي يمكن خلالها استخدام بنك البطاريات المختار عند سحب ({night_amp}) أمبير هي: **{int(actual_hours)} ساعات و {int((actual_hours % 1) * 60)} دقيقة**.")
+            # حذف كلمة "ملاحظة حسابية" وإبقاء الملاحظة مباشرة
+            st.info(f"الأمبيرات المتاحة من بنك البطاريات خلال ({night_hours}) ساعات هي **{actual_amp_available:.1f} أمبير**.")
+            st.info(f"المدة الزمنية لتشغيل سحب ({night_amp}) أمبير هي **{int(actual_hours)} ساعة و {int((actual_hours % 1) * 60)} دقيقة**.")
             
+            # حذف عبارة 210V من ملاحظة الكيبل
             if charge_iac_210v > 0:
                 st.warning(
-                    f"🔌 **ملاحظة توصيل كابل الشحن من الشبكة الوطنية (210V):**\n\n"
-                    f"عند ضبط تيار الشحن على النسبة الآمنة **80%** للأجهزة ({actual_charge_idc:.1f}A DC إجمالي)، "
-                    f"يكون تيار الـ AC الإجمالي المسحوب من الوطنية حوالي **{charge_iac_210v:.1f} أمبير**.\n\n"
-                    f"📌 **المقطع الأدنى المعتمد لكابل الـ AC الرباعي (4-Core):** **({single_inv['cable_spec']}) لكل إنفرتر**."
+                    f"🔌 عند ضبط الشحن على 80% ({actual_charge_idc:.1f}A DC)، يكون التيار المسحوب من الوطنية حوالي **{charge_iac_210v:.1f} أمبير AC**.\n"
+                    f"📌 المقطع الأدنى المعتمد لكابل الـ AC الرباعي: **({single_inv['cable_spec']}) لكل إنفرتر**."
                 )
 
         st.markdown("---")
@@ -416,5 +437,4 @@ if st.button("🚀 عرض نتائج المنظومة والتكلفة الإج�
         
         st.table(table_data)
 
-        st.subheader("💰 الكلفة الإجمالية النهائية")
-        st.success(f"**الكلفة الإجمالية المباشرة للمشروع بناءً على اختيار الماركات: ${total_cost:,}**")
+        st.success(f"**الكلفة الإجمالية النهائية المباشرة: ${total_cost:,}**")
