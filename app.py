@@ -61,13 +61,23 @@ DC_ACCESSORIES_PRICE_PER_STRING = 30
 EARTHING_SYSTEM_PRICE = 160
 
 INVERTER_BRANDS = [
-    # Hybrid Inverters
+    # GOGO Inverters
+    {"brand": "GoGo Hybrid", "model": "GoGo-5.5KW", "power_kw": 5.5, "price": 600, "phase": "single", "type": "Hybrid", "max_charge_idc": 110, "cable_spec": "4 x 4 mm²"},
+    {"brand": "GoGo Hybrid", "model": "GoGo-6KW", "power_kw": 6.0, "price": 650, "phase": "single", "type": "Hybrid", "max_charge_idc": 120, "cable_spec": "4 x 4 mm²"},
+
+    # Growatt Inverters
+    {"brand": "Growatt Off-Grid", "model": "SPF 5000 ES", "power_kw": 5.0, "price": 650, "phase": "single", "type": "Off-Grid", "max_charge_idc": 100, "cable_spec": "4 x 4 mm²"},
+    {"brand": "Growatt Hybrid", "model": "SPH 6000", "power_kw": 6.0, "price": 850, "phase": "single", "type": "Hybrid", "max_charge_idc": 125, "cable_spec": "4 x 6 mm²"},
+    {"brand": "Growatt Hybrid", "model": "SPH 10000", "power_kw": 10.0, "price": 1500, "phase": "single", "type": "Hybrid", "max_charge_idc": 200, "cable_spec": "4 x 10 mm²"},
+
+    # Deye Hybrid Inverters
     {"brand": "Deye Hybrid", "model": "SUN-5K-SG04LP1-EU-SM2", "power_kw": 5.0, "price": 750, "phase": "single", "type": "Hybrid", "max_charge_idc": 120, "cable_spec": "4 x 4 mm²"},
     {"brand": "Deye Hybrid", "model": "SUN-6K-SG04LP1-EU-SM2", "power_kw": 6.0, "price": 875, "phase": "single", "type": "Hybrid", "max_charge_idc": 135, "cable_spec": "4 x 6 mm²"},
     {"brand": "Deye Hybrid", "model": "SUN-8K-SG05LP1-EU-SM2", "power_kw": 8.0, "price": 1225, "phase": "single", "type": "Hybrid", "max_charge_idc": 190, "cable_spec": "4 x 10 mm²"},
     {"brand": "Deye Hybrid", "model": "SUN-12K-SG02LP1-EU-AM3", "power_kw": 12.0, "price": 1800, "phase": "single", "type": "Hybrid", "max_charge_idc": 250, "cable_spec": "4 x 16 mm²"},
     {"brand": "Deye Hybrid", "model": "SUN-16K-SG01LP1-EU", "power_kw": 16.0, "price": 2000, "phase": "single", "type": "Hybrid", "max_charge_idc": 290, "cable_spec": "4 x 16 mm²"},
 
+    # Solis Hybrid Inverters
     {"brand": "Solis Hybrid", "model": "S6-EH1P5K-L-PLUS", "power_kw": 5.0, "price": 750, "phase": "single", "type": "Hybrid", "max_charge_idc": 112, "cable_spec": "4 x 4 mm²"},
     {"brand": "Solis Hybrid", "model": "S6-EH1P6K-L-PLUS", "power_kw": 6.0, "price": 800, "phase": "single", "type": "Hybrid", "max_charge_idc": 135, "cable_spec": "4 x 6 mm²"},
     {"brand": "Solis Hybrid", "model": "S6-EH1P8K-L-PLUS", "power_kw": 8.0, "price": 1300, "phase": "single", "type": "Hybrid", "max_charge_idc": 190, "cable_spec": "4 x 10 mm²"},
@@ -78,7 +88,6 @@ INVERTER_BRANDS = [
     # Off-Grid Inverters
     {"brand": "Deye Off-Grid", "model": "SUN-6K-OG", "power_kw": 6.0, "price": 700, "phase": "single", "type": "Off-Grid", "max_charge_idc": 120, "cable_spec": "4 x 4 mm²"},
     {"brand": "SRNE Off-Grid", "model": "SRNE-16K-IP20", "power_kw": 16.0, "price": 1600, "phase": "single", "type": "Off-Grid", "max_charge_idc": 200, "cable_spec": "4 x 10 mm²"},
-    {"brand": "Growatt Off-Grid", "model": "SPF 5000 ES", "power_kw": 5.0, "price": 650, "phase": "single", "type": "Off-Grid", "max_charge_idc": 100, "cable_spec": "4 x 4 mm²"},
 
     # On-Grid Inverters
     {"brand": "Solis On-Grid", "model": "S6-GR1P5K", "power_kw": 5.0, "price": 500, "phase": "single", "type": "On-Grid", "max_charge_idc": 0, "cable_spec": "4 x 4 mm²"},
@@ -198,8 +207,7 @@ with col2:
     night_amp_input = st.number_input("أمبير الليل (ل):", min_value=0, max_value=300, value=None, step=1, placeholder="أدخل أمبير الليل...")
 
 with col3:
-    night_hours = 4
-    st.text_input("ساعات التشغيل الليلي:", value="4 ساعات (تلقائي)", disabled=True)
+    night_hours = st.number_input("ساعات التشغيل الليلي:", min_value=1, max_value=24, value=4, step=1)
 
 is_3ph = st.checkbox("تطبيق نظام 3PH (ثلاثي الأطوار / 3-Phase)", value=False)
 
@@ -257,33 +265,46 @@ else:
             
             st.info(f"📌 **الجهاز المرشح:** `{target_size} kW` | **العدد:** `{inv_qty}`")
             
-            matching_brands = [
+            # جلب كافة الأجهزة والماركات المتوفرة بالنظام لنفس الفاز والنوع
+            available_inverters = [
                 inv for inv in INVERTER_BRANDS 
-                if inv["phase"] == target_phase and inv["power_kw"] == target_size and inv["type"] == selected_system_type
+                if inv["phase"] == target_phase and inv["type"] == selected_system_type
             ]
             
-            if not matching_brands:
-                matching_brands = [
+            if not available_inverters:
+                available_inverters = [
                     inv for inv in INVERTER_BRANDS 
-                    if inv["phase"] == target_phase and inv["power_kw"] == target_size
+                    if inv["phase"] == target_phase
                 ]
             
-            if matching_brands:
-                brand_options = [f"{inv['brand']} [{inv['model']}] - (${inv['price'] * inv_qty})" for inv in matching_brands]
+            if available_inverters:
+                brand_options = [f"{inv['brand']} [{inv['model']}] - {inv['power_kw']}kW - (${inv['price'] * inv_qty})" for inv in available_inverters]
+                
+                # تعيين المؤشر الافتراضي للعلامة التجارية المقترحة
+                default_idx = 0
+                for idx, inv in enumerate(available_inverters):
+                    if inv["power_kw"] == target_size:
+                        default_idx = idx
+                        break
+
                 selected_brand_str = st.selectbox(
-                    f"اختر الماركة المتوفرة بحجم ({target_size} kW):",
-                    options=brand_options
+                    "اختر ماركة الإنفرتر المطلوبة:",
+                    options=brand_options,
+                    index=default_idx
                 )
-                chosen_single_inv = matching_brands[brand_options.index(selected_brand_str)]
+                chosen_single_inv = available_inverters[brand_options.index(selected_brand_str)]
+                
+                # حساب عدد الأجهزة تلقائياً عند تغيير القدرة
+                calculated_inv_qty = math.ceil(recommended_kw / chosen_single_inv["power_kw"]) if chosen_single_inv["power_kw"] > 0 else 1
                 
                 chosen_inv_combo = {
                     "inverter": chosen_single_inv,
-                    "qty": inv_qty,
-                    "total_power": total_power,
-                    "total_price": chosen_single_inv["price"] * inv_qty
+                    "qty": calculated_inv_qty,
+                    "total_power": chosen_single_inv["power_kw"] * calculated_inv_qty,
+                    "total_price": chosen_single_inv["price"] * calculated_inv_qty
                 }
             else:
-                st.warning(f"لا تتوفر ماركات حالياً بحجم {target_size} kW.")
+                st.warning("لا تتوفر ماركات حالياً ضمن هذا الخيار.")
                 chosen_inv_combo = None
         else:
             st.error("الحمل كبير جداً، يرجى مراجعة المهندس المختص.")
@@ -384,12 +405,17 @@ else:
             st.markdown("---")
 
         # ----------------------------------------------------
-        # التنبيهات والتوصيات الفنية (صيغة مختصرة ومباشرة)
+        # التنبيهات والتوصيات الفنية (محاذاة من اليمين إلى اليسار RTL)
         # ----------------------------------------------------
         st.subheader("💡 التنبيهات والتوصيات الفنية")
         
-        # كتابة اسم الماركة والقدرة والعدد بشكل مختصر
-        st.success(f"⚡ **الإنفرتر المختار:** {single_inv['brand'].replace(' Hybrid','').replace(' Off-Grid','').replace(' On-Grid','')} {int(single_inv['power_kw']) if single_inv['power_kw'].is_integer() else single_inv['power_kw']} kW (عدد {inv_qty})")
+        # تغليف التنبيهات لضمان المحاذاة الاتجاهية الصحيحة من اليمين إلى اليسار
+        st.markdown('<div style="direction: rtl; text-align: right;">', unsafe_allow_html=True)
+
+        inv_clean_brand = single_inv['brand'].replace(' Hybrid','').replace(' Off-Grid','').replace(' On-Grid','')
+        inv_power_disp = int(single_inv['power_kw']) if single_inv['power_kw'].is_integer() else single_inv['power_kw']
+        
+        st.success(f"⚡ **الإنفرتر المختار:** {inv_clean_brand} {inv_power_disp} kW (عدد {inv_qty})")
             
         if selected_system_type != "On-Grid":
             actual_hours = chosen_bat["total_cap"] / (0.285 * night_amp) if night_amp > 0 else 0
@@ -404,6 +430,8 @@ else:
             
             if charge_iac_210v > 0:
                 st.warning(f"🔌 تيار الشحن المسحوب من الوطنية: **{charge_iac_210v:.1f}A AC** (عند ضبط الشحن 80%) | كابل AC المطلوب: **({single_inv['cable_spec']}) لكل إنفرتر**.")
+
+        st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown("---")
 
