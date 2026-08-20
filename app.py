@@ -223,17 +223,39 @@ else:
             else:
                 final_panels = auto_panels
 
-        # --- الإنفرتر (العاكس) ---
+       # --- الإنفرتر (العاكس) ---
         with col_i:
             st.markdown("##### 🔌 الإنفرتر / العاكس")
+            
+            # 1. تصفية الأجهزة بناءً على عدد الأطوار ونوع المنظومة
             filtered_inverters = [inv for inv in INVERTER_BRANDS if inv["phase"] == phase_option and inv["type"] == sys_type]
             if not filtered_inverters:
                 filtered_inverters = [inv for inv in INVERTER_BRANDS if inv["phase"] == phase_option]
 
+            # 2. ترتيب الأجهزة حسب القدرة لضمان عرض منتظم
+            filtered_inverters = sorted(filtered_inverters, key=lambda x: x["power_kw"])
+
+            # 3. إيجاد الجهاز الأنسب تلقائياً بناءً على القدرة المطلوبة (recommended_kw)
+            best_match_idx = 0
+            for idx, inv in enumerate(filtered_inverters):
+                if inv["power_kw"] >= recommended_kw:
+                    best_match_idx = idx
+                    break
+                # إذا كانت الأحمال أكبر من أكبر إنفرتر منفرد، اختر أكبر إنفرتر متوفر لتكراره
+                best_match_idx = idx 
+
             inv_names = [f"{inv['brand']} [{inv['model']}] - {inv['power_kw']} kW (${inv['price']})" for inv in filtered_inverters]
-            selected_inv_idx = st.selectbox("اختر ماركة ونوع الإنفرتر:", range(len(inv_names)), format_func=lambda x: inv_names[x])
+            
+            # 4. جعل الاختيار الافتراضي هو الجهاز الأنسب للقدرة المطلوبة تلقائياً
+            selected_inv_idx = st.selectbox(
+                "اختر ماركة ونوع الإنفرتر:", 
+                range(len(inv_names)), 
+                index=best_match_idx, 
+                format_func=lambda x: inv_names[x]
+            )
             chosen_single_inv = filtered_inverters[selected_inv_idx]
 
+            # حساب عدد الإنفرترات المطلوب
             calc_inv_qty = math.ceil(recommended_kw / chosen_single_inv["power_kw"]) if chosen_single_inv["power_kw"] > 0 else 1
             inv_qty = st.number_input("عدد الإنفرترات المطلوبة:", min_value=1, max_value=10, value=calc_inv_qty, step=1)
 
