@@ -1,14 +1,17 @@
 import streamlit as st
-
-# solar_system_calculator.py
-# ==============================================================================
-# برنامج حساب وتصحيح المنظومات الشمسية - إعداد المهندس مراد
-# ==============================================================================
-
 import math
 
 # ------------------------------------------------------------------------------
-# 1. سُلم الأسعار والمعايير الفنية المعتمدة (System Rules & Pricing Matrix)
+ضبط إعدادات الصفحة
+# ------------------------------------------------------------------------------
+st.set_page_config(
+    page_title="حاسبة ركن التعمير للطاقة الشمسية",
+    page_icon="☀️",
+    layout="centered"
+)
+
+# ------------------------------------------------------------------------------
+1. سُلم الأسعار والمعايير الفنية المعتمدة
 # ------------------------------------------------------------------------------
 
 PANEL_SPECS = {
@@ -17,7 +20,7 @@ PANEL_SPECS = {
     "max_string_size": 9,   # الحد الأقصى للألواح بالسلسلة الواحدة
 }
 
-DC_ACCESSORIES_PRICE_PER_STRING = 30  # أسلاك 40m + قاطع DC + فيوزات + MC4 + أنابيب
+DC_ACCESSORIES_PRICE_PER_STRING = 30  # أسلاك + قاطع DC + فيوزات + MC4
 
 INVERTERS = [
     {"name": "Growatt 6 kW (IP21)", "power_kw": 6.0, "price": 400, "phase": "single"},
@@ -37,15 +40,14 @@ BATTERIES = [
     {"name": "BICODI", "capacity_kwh": 17.66, "price": 2100},
 ]
 
-EARTHING_SYSTEM_PRICE = 160  # وتد نحاسي + أسلاك 30m + مادة تأريض + الحفر والربط
+EARTHING_SYSTEM_PRICE = 160
 
 
 # ------------------------------------------------------------------------------
-# 2. القواعد والدوال الحسابية (Engine Calculations)
+2. الدوال الحسابية
 # ------------------------------------------------------------------------------
 
 def get_ac_board_price(current_amp):
-    """تحديد سعر بورد الـ AC بناءً على الأمبيرية النهارية"""
     if 8 <= current_amp <= 15:
         return 125
     elif 15 < current_amp <= 25:
@@ -59,24 +61,20 @@ def get_ac_board_price(current_amp):
     elif 120 < current_amp <= 150:
         return 450
     else:
-        return 0  # تخضع لتقدير المهندس للكشف النهائي
+        return 0
 
 
 def calculate_battery_bank(night_current, night_hours):
-    """معادلة طاقة البطاريات: Energy (kWh) = Current (A) * 0.285 * Hours (h)"""
     required_kwh = night_current * 0.285 * night_hours
-    
     best_option = None
     min_diff = float('inf')
     
     for bat in BATTERIES:
-        # فحص وحدة واحدة
         if bat["capacity_kwh"] >= required_kwh:
             diff = bat["capacity_kwh"] - required_kwh
             if diff < min_diff:
                 min_diff = diff
                 best_option = {"model": bat["name"], "capacity": bat["capacity_kwh"], "qty": 1, "price": bat["price"]}
-        # فحص وحدتين بالتوازي
         elif (bat["capacity_kwh"] * 2) >= required_kwh:
             diff = (bat["capacity_kwh"] * 2) - required_kwh
             if diff < min_diff:
@@ -87,12 +85,6 @@ def calculate_battery_bank(night_current, night_hours):
 
 
 def calculate_panels(day_current, required_battery_kwh):
-    """
-    معادلة الألواح المعتمدة:
-    1. ألواح النهار = (التيار * 230 * 1.3) / 640
-    2. ألواح الشحن = ((طاقة البطارية * 1000) / 9) / 640
-    3. تحقيق شرط التساوي بالسلاسل والحد الأقصى 9 ألواح/سلسلة
-    """
     day_power_w = day_current * 230 * 1.3
     day_panels_exact = day_power_w / PANEL_SPECS["power_w"]
     
@@ -111,10 +103,10 @@ def calculate_panels(day_current, required_battery_kwh):
                 "strings_count": num_strings,
                 "panels_per_string": panels_per_string
             }
+    return {"total_panels": target_panels, "strings_count": 1, "panels_per_string": target_panels}
 
 
 def select_inverter(day_current):
-    """اختيار العاكس بحساب هامش أمان +20% على الأحمال النهارية"""
     load_kw = (day_current * 230) / 1000.0
     required_kw_with_safety = load_kw * 1.2
     
@@ -125,16 +117,24 @@ def select_inverter(day_current):
 
 
 # ------------------------------------------------------------------------------
-# 3. دالة المعالجة والتسعير (Core System Engine)
+3. واجهة المستخدم على Streamlit
 # ------------------------------------------------------------------------------
 
-def process_solar_request(day_amp, night_amp, night_hours):
+st.title("☀️ شركة ركن التعمير للطاقة الشمسية")
+st.subheader("حاسبة وتصحيح المنظومات الشمسية - إعداد المهندس مراد")
+st.markdown("---")
+
+st.sidebar.header("⚙️ إدخال الأحمال الكهربائية")
+day_amp = st.sidebar.number_input("أمبير النهار (A):", min_value=1, max_value=200, value=40)
+night_amp = st.sidebar.number_input("أمبير الليل (A):", min_value=1, max_value=200, value=30)
+night_hours = st.sidebar.number_input("ساعات الليل (ساعة):", min_value=1, max_value=24, value=4)
+
+if st.sidebar.button("🧮 احسب المنظومة وأظهر التقرير", type="primary"):
     req_kwh, bat_selected = calculate_battery_bank(night_amp, night_hours)
     panels_info = calculate_panels(day_amp, req_kwh)
     inverter = select_inverter(day_amp)
     ac_board_cost = get_ac_board_price(day_amp)
     
-    # التكاليف
     panels_cost = panels_info["total_panels"] * PANEL_SPECS["price_per_unit"]
     dc_acc_cost = panels_info["strings_count"] * DC_ACCESSORIES_PRICE_PER_STRING
     inv_cost = inverter["price"]
@@ -142,24 +142,21 @@ def process_solar_request(day_amp, night_amp, night_hours):
     
     total_cost = panels_cost + dc_acc_cost + inv_cost + bat_cost + ac_board_cost + EARTHING_SYSTEM_PRICE
     
-    # طباعة التقرير الفني والتسعيري
-    print("\n" + "="*60)
-    print(f"📊 التقرير الفني وعرض السعر للمنظومة: ({day_amp}ن {night_amp}ل {night_hours}س)")
-    print("="*60)
-    print(f"1. بنك البطاريات : {bat_selected['qty']}x {bat_selected['model']} ({bat_selected['capacity']} kWh) -> ${bat_cost}")
-    print(f"2. الألواح الشمسية: {panels_info['total_panels']} لوح ({panels_info['strings_count']} سلاسل × {panels_info['panels_per_string']} ألواح) -> ${panels_cost}")
-    print(f"3. ملحقات الـ DC   : {panels_info['strings_count']} سلاسل -> ${dc_acc_cost}")
-    print(f"4. العاكس الهجين  : {inverter['name']} -> ${inv_cost}")
-    print(f"5. بورد الـ AC     : أمبيرية ({day_amp}A) -> ${ac_board_cost if ac_board_cost > 0 else 'تقدير مهندس'}")
-    print(f"6. منظومة التأريض  : ثابتة وشاملة -> ${EARTHING_SYSTEM_PRICE}")
-    print("-" * 60)
-    print(f"💰 الإجمالي النهائي المباشر للمشروع: ${total_cost}")
-    print("="*60 + "\n")
-
-
-# ------------------------------------------------------------------------------
-# 4. تشغيل تجريبي (مثال: 40ن 30ل 4س)
-# ------------------------------------------------------------------------------
-if __name__ == "__main__":
-    # يمكن إدخال أي قيمة بالترتيب: (أمبير النهار، أمبير الليل، ساعات الليل)
-    process_solar_request(day_amp=40, night_amp=30, night_hours=4)
+    st.success("✅ تم حساب المنظومة بنجاح!")
+    
+    st.markdown(f"### 📊 التقرير الفني وعرض السعر للمنظومة: (`{day_amp}A` نهارا، `{night_amp}A` ليلا، `{night_hours}` ساعات)")
+    
+    # عرض النتائج في جدول أو مربعات منسقة
+    st.markdown(f"""
+    - **1. بنك البطاريات:** {bat_selected['qty']}x {bat_selected['model']} (`{bat_selected['capacity']} kWh`) ⟵ **${bat_cost}**
+    - **2. الألواح الشمسية:** {panels_info['total_panels']} لوح (`{panels_info['strings_count']}` سلاسل × `{panels_info['panels_per_string']}` ألواح) ⟵ **${panels_cost}**
+    - **3. ملحقات الـ DC:** {panels_info['strings_count']} سلاسل ⟵ **${dc_acc_cost}**
+    - **4. العاكس الهجين:** {inverter['name']} ⟵ **${inv_cost}**
+    - **5. بورد الـ AC:** أمبيرية (`{day_amp}A`) ⟵ **${ac_board_cost if ac_board_cost > 0 else 'تقدير مهندس'}**
+    - **6. منظومة التأريض:** ثابتة وشاملة ⟵ **${EARTHING_SYSTEM_PRICE}**
+    """)
+    
+    st.markdown("---")
+    st.markdown(f"## 💰 الإجمالي النهائي المباشر للمشروع: **${total_cost}**")
+else:
+    st.info("👈 يرجى إدخال القيم في القائمة الجانبية ثم الضغط على زر **احسب المنظومة** لعرض التقرير والتسعير.")
