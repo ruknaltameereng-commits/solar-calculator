@@ -189,4 +189,17 @@ def process_solar_request(day_amp, night_amp, night_hours, system_type="LV-1PH")
     print(f"{'الألواح الشمسية':<20} | {'لوح 640W (شامل الهيكل والتركيب)':<30} | {p_info['total_panels']:<8} | ${panels_cost:<10}")
     print(f"{'ملحقات الـ DC':<20} | {'أسلاك 40m + قاطع + فيوزات + MC4':<30} | {p_info['strings_count']} سلاسل | ${dc_acc_cost:<10}")
     print(f"{'العاكس الهجين':<20} | {inverter['name']:<30} | 1        | ${inv_cost:<10}")
-    print(f"{'بنك البطاريات':<20} | {bat['model'] + ' Low Voltage
+    print(f"{'بنك البطاريات':<20} | {bat['model'] + ' Low Voltage':<30} | {bat['qty']}        | ${bat_cost:<10}")
+    print(f"{'بورد الـ AC':<20} | {f'بورد حماية (لغاية {day_amp}A)':<30} | 1        | ${ac_board_cost:<10}")
+    print(f"{'منظومة التأريض':<20} | {'شاملة وتد نحاسي وسلك وحفر':<30} | 1        | ${EARTHING_SYSTEM_PRICE:<10}")
+    print("-" * 70)
+
+    print(f"\n3️⃣ الكلفة الإجمالية النهائية المباشرة للمشروع: ${total_cost:,}")
+    print("=" * 70 + "\n")
+
+
+# ------------------------------------------------------------------------------
+# 4. تشغيل تجريبي
+# ------------------------------------------------------------------------------
+if __name__ == "__main__":
+    process_solar_request(day_amp=20, night_amp=10, night_hours=4)
